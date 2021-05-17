@@ -1,5 +1,6 @@
 package com.codecool.dungeoncrawl;
 
+import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.GameMap;
 import com.codecool.dungeoncrawl.logic.MapLoader;
@@ -16,6 +17,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -24,11 +27,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 
 public class GameEngine extends Application {
     public static ArrayList<AiActor> aiList = new ArrayList<AiActor>();
+    GameDatabaseManager dbManager;
 
 
     public static SoundEngine soundEngine = new SoundEngine();
@@ -50,6 +55,7 @@ public class GameEngine extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        setupDbManager();
         GridPane ui = new GridPane();
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
@@ -108,6 +114,15 @@ public class GameEngine extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+    }
+
+    private void setupDbManager() {
+        dbManager = new GameDatabaseManager();
+        try {
+            dbManager.setup();
+        } catch (SQLException ex) {
+            System.out.println("Cannot connect to database.");
+        }
     }
 
     private void toggleMute() {
@@ -227,4 +242,24 @@ public class GameEngine extends Application {
             pickupButton.setVisible(true);
         healthLabel.setText("" + map.getPlayer().getHealth());
     }
+
+    private void onKeyReleased(KeyEvent keyEvent) {
+        KeyCombination exitCombinationMac = new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN);
+        KeyCombination exitCombinationWin = new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN);
+        if (exitCombinationMac.match(keyEvent)
+                || exitCombinationWin.match(keyEvent)
+                || keyEvent.getCode() == KeyCode.ESCAPE) {
+            exit();
+        }
+    }
+
+    private void exit() {
+        try {
+            stop();
+        } catch (Exception e) {
+            System.exit(1);
+        }
+        System.exit(0);
+    }
+
 }
