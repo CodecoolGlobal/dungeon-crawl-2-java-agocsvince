@@ -1,15 +1,18 @@
 package com.codecool.dungeoncrawl.logic;
 
+import com.codecool.dungeoncrawl.GameEngine;
+import com.codecool.dungeoncrawl.logic.actors.ai.*;
+import com.codecool.dungeoncrawl.logic.items.*;
 import com.codecool.dungeoncrawl.logic.actors.Player;
-import com.codecool.dungeoncrawl.logic.actors.Skeleton;
+
 
 import java.io.InputStream;
 import java.util.Scanner;
 
 public class MapLoader {
     public static GameMap loadMap() {
-        InputStream is = MapLoader.class.getResourceAsStream("/map.txt");
-        Scanner scanner = new Scanner(is);
+        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/map.txt");
+        Scanner scanner = new Scanner(streamFromTxt);
         int width = scanner.nextInt();
         int height = scanner.nextInt();
 
@@ -35,9 +38,32 @@ public class MapLoader {
                             cell.setType(CellType.FLOOR);
                             new Skeleton(cell);
                             break;
+                        case 'g':
+                            cell.setType(CellType.FLOOR);
+                            GameEngine.aiList.add(new Golem(cell));
+                            break;
                         case '@':
                             cell.setType(CellType.FLOOR);
-                            map.setPlayer(new Player(cell, "Player"));
+                            map.setPlayer(new Player(cell));
+                            break;
+                        case 'k':
+                            cell.setType(CellType.FLOOR);
+                            new Key(cell);
+                            break;
+                        case 'w':
+                            cell.setType(CellType.FLOOR);
+                            new Sword(cell);
+                            break;
+                        case 'd':
+                            cell.setType(CellType.FLOOR);
+                            new Door(cell);
+                            break;
+                        case 'W':
+                            GameEngine.aiList.add(new Wraith(cell, map));
+                            break;
+                        case 'z':
+                            cell.setType(CellType.FLOOR);
+                            GameEngine.aiList.add(new Zombie(cell, map));
                             break;
                         default:
                             throw new RuntimeException("Unrecognized character: '" + line.charAt(x) + "'");
