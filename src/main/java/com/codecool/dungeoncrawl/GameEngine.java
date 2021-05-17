@@ -211,6 +211,10 @@ public class GameEngine extends Application {
                 map.getPlayer().move(1, 0);
                 refresh();
                 break;
+            case S:
+                Player player = map.getPlayer();
+                dbManager.savePlayer(player);
+                break;
         }
     }
 
