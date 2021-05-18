@@ -11,6 +11,8 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -187,11 +189,16 @@ public class GameEngine extends Application {
             MenuItem changeName = new MenuItem("Change name");
             Menu volume = new Menu("Volume");
             CustomMenuItem changeVolume = new CustomMenuItem();
-            Slider slider = new Slider(0, 100, 50);
+            Slider slider = new Slider();
+            slider.setMin(0);
+            slider.setMax(40);
+            slider.setValue(20);
+            slider.setMajorTickUnit(2);
             volume.getItems().addAll(changeVolume);
-            volume.setOnAction(event -> {
-                // TODO: changing volume with slider
-                slider.getValue(); // value of the slider, we should add this as parameter
+            slider.valueProperty().addListener(new ChangeListener<Number>() {
+                public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
+                    soundEngine.changeVolume((float) slider.getValue()-10);
+                }
             });
 
             changeVolume.setContent(slider);
