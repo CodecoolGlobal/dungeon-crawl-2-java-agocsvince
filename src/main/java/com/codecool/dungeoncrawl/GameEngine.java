@@ -44,9 +44,9 @@ public class GameEngine extends Application {
             map.getHeight() * Tiles.TILE_WIDTH);
     GraphicsContext context = canvas.getGraphicsContext2D();
     Label healthLabel = new Label();
-    Label inventoryLabel = new Label();
     Button pickupButton = new Button("Pick up item (E)");
     Button mute = new Button("Mute");
+    Button[][] inventoryButtons = new Button[4][6];
 
     public static void main(String[] args) {
         launch(args);
@@ -56,32 +56,48 @@ public class GameEngine extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
-        GridPane ui = new GridPane();
+        GridPane holder = new GridPane();
+
+        //Top UI setup
+        GridPane uiTop = new GridPane();
+        uiTop.setPrefWidth(200);
+        uiTop.setPadding(new Insets(10));
+        Label name = new Label("Player");
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
-
-        ui.setPrefWidth(200);
-        ui.setPadding(new Insets(10));
-        Label name = new Label("Player");
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
-        Label inventory = new Label("Inventory: ");
 
-        ui.add(name, 0, 0);
-        ui.add(mute, 1, 0);
-        ui.add(new Label("Health: "), 0, 1);
-        ui.add(healthLabel, 1, 1);
-        ui.add(pickupButton, 0, 2);
-        ui.add(inventory, 0, 3);
-        ui.add(inventoryLabel, 0, 4);
+        uiTop.add(name, 0, 0);
+        uiTop.add(mute, 1, 0);
+        uiTop.add(new Label("Health: "), 0, 1);
+        uiTop.add(healthLabel, 1, 1);
+        uiTop.add(pickupButton, 0, 2);
+
+
+        //Bottom UI setup
+        GridPane uiBottom = new GridPane();
+
+        for (int row = 0; row < inventoryButtons.length; row++) {
+            for (int col = 0; col < 6; col++) {
+                Button btn = new Button();
+                btn.setMinSize(32,32);
+                uiBottom.add(btn,col,row);
+                inventoryButtons[row][col] = btn;
+                btn.setFocusTraversable(false);
+            }
+        }
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(menuBar(name));
 
-        ui.setHgap(10);
-        ui.setVgap(10);
+        uiTop.setHgap(10);
+        uiTop.setVgap(10);
+        holder.add(uiTop,0,0);
+        holder.add(uiBottom,0,1);
         borderPane.setCenter(canvas);
-        borderPane.setRight(ui);
+        borderPane.setRight(holder);
+
 
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
@@ -189,8 +205,7 @@ public class GameEngine extends Application {
         playerCell.removeItemFromCell();
         pickupButton.setVisible(false);
 
-        System.out.println(item.getName());
-        inventoryLabel.setText(inventoryLabel.getText() + item.getName() + " ");
+        //Add to inventory graphically
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {

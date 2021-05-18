@@ -5,7 +5,6 @@ import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
 import com.codecool.dungeoncrawl.logic.items.Item;
-import com.codecool.dungeoncrawl.logic.items.Key;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,7 +13,7 @@ import java.util.Set;
 public class Player extends Actor {
     private final Set<Item> inventory = new HashSet<>();
     private String name;
-    private final String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
+    private final static String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
 
     public Player(Cell cell) {
         super(cell);
@@ -47,7 +46,7 @@ public class Player extends Actor {
         }
         if (neighbor.getDoor() != null && neighbor.getDoor().getTileName().equals("closedDoor")) {
             for (Item item : inventory) {
-                if (item instanceof Key) {
+                if (item.getItemID() == Item.ITEM.KEY_YELLOW.id) {
                     neighbor.openDoor(item);
                     inventory.remove(item);
                     return;
@@ -76,13 +75,7 @@ public class Player extends Actor {
 
     public void pickUpItem(Item item) {
         inventory.add(item);
-        addItemBoost(item);
         GameEngine.soundEngine.play("pickup");
-    }
-
-    private void addItemBoost(Item item) {
-        setHealth(health += item.getIncreaseInHealth());
-        setDamage(damage += item.getIncreaseInDamage());
     }
 
     public String getTileName() {

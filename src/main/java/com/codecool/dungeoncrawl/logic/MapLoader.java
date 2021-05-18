@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class MapLoader {
 
-    private static ArrayList<String> maps = new ArrayList<>();
+    private static final ArrayList<String> maps = new ArrayList<>();
     private static int currentMapIndex = 0;
 
 
@@ -62,11 +62,11 @@ public class MapLoader {
                             break;
                         case 'k':
                             cell.setType(CellType.FLOOR);
-                            new Key(cell);
+                            new Item(Item.ITEM.KEY_YELLOW, cell);
                             break;
                         case 'w':
                             cell.setType(CellType.FLOOR);
-                            new Sword(cell);
+                            new Item(Item.ITEM.SWORD, cell);
                             break;
                         case 'd':
                             cell.setType(CellType.FLOOR);
