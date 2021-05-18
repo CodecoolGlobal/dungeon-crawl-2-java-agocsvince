@@ -94,36 +94,22 @@ public class GameEngine extends Application {
         reflection.setFraction(0.7);
 
         // Start
-        Label menuLabelStart = new Label("Start");
-        menuLabelStart.setGraphic(new ImageView());
-        setUpLabel(reflection, menuLabelStart);
+        Label menuLabelStart = setUpLabel(reflection, "Start");
 
         menuLabelStart.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
 
         // Options
-        Label menuLabelOptions = new Label("Options");
-        setUpLabel(reflection, menuLabelOptions);
-
-        MenuItem character = new MenuItem("Character");
+        Label menuLabelOptions = setUpLabel(reflection, "Options");
+        // TODO: drop-down or something with settings
 
         // Exit
-        Label menuLabelExit = new Label("Exit");
-        setUpLabel(reflection, menuLabelExit);
+        Label menuLabelExit = setUpLabel(reflection, "Exit");
 
         menuLabelExit.setOnMouseClicked(mouseEvent -> System.exit(0));
-        VBox vBox = new VBox(menuLabelStart, menuLabelOptions, menuLabelExit);
-        vBox.setSpacing(40);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.setStyle("-fx-background-color: #242222");
 
         ui.setHgap(10);
         ui.setVgap(10);
-        borderPane.setCenter(vBox);
-        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH);
-        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
-        vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
-        vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
-        borderPane.setRight(ui);
+        setUpVBox(ui, borderPane, menuLabelStart, menuLabelOptions, menuLabelExit);
 
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
@@ -158,6 +144,25 @@ public class GameEngine extends Application {
 
     }
 
+    private Label setUpLabel(Reflection reflection, String start) {
+        Label menuLabelStart = new Label(start);
+        setUpLabel(reflection, menuLabelStart);
+        return menuLabelStart;
+    }
+
+    private void setUpVBox(GridPane ui, BorderPane borderPane, Label menuLabelStart, Label menuLabelOptions, Label menuLabelExit) {
+        VBox vBox = new VBox(menuLabelStart, menuLabelOptions, menuLabelExit);
+        vBox.setSpacing(40);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setStyle("-fx-background-color: #242222");
+        borderPane.setCenter(vBox);
+        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH);
+        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
+        vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        borderPane.setRight(ui);
+    }
+
     private void setUpLabel(Reflection reflection, Label menuLabelStart) {
         menuLabelStart.setTextFill(Color.WHITE);
         menuLabelStart.setEffect(reflection);
@@ -186,22 +191,10 @@ public class GameEngine extends Application {
         private MenuBar menuBar (Label name){
             MenuBar menuBar = new MenuBar();
             Menu menuFile = new Menu("Settings");
-            MenuItem changeName = new MenuItem("Change name");
             Menu volume = new Menu("Volume");
             CustomMenuItem changeVolume = new CustomMenuItem();
-            Slider slider = new Slider();
-            slider.setMin(0);
-            slider.setMax(40);
-            slider.setValue(20);
-            slider.setMajorTickUnit(2);
-            volume.getItems().addAll(changeVolume);
-            slider.valueProperty().addListener(new ChangeListener<Number>() {
-                public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
-                    soundEngine.changeVolume((float) slider.getValue()-10);
-                }
-            });
-
-            changeVolume.setContent(slider);
+            setupSlider(volume, changeVolume);
+            MenuItem changeName = new MenuItem("Change name");
             changeName.setOnAction(t -> {
                 Stage stage = new Stage();
                 TextField textField = new TextField();
@@ -226,7 +219,22 @@ public class GameEngine extends Application {
             return menuBar;
         }
 
-        private void setNameLabel (Label name, Stage stage, TextField textField){
+    private void setupSlider(Menu volume, CustomMenuItem changeVolume) {
+        Slider slider = new Slider();
+        slider.setMin(0);
+        slider.setMax(40);
+        slider.setValue(20);
+        slider.setMajorTickUnit(2);
+        volume.getItems().addAll(changeVolume);
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
+                soundEngine.changeVolume((float) slider.getValue()-10);
+            }
+        });
+        changeVolume.setContent(slider);
+    }
+
+    private void setNameLabel (Label name, Stage stage, TextField textField){
             player.setName(textField.getText());
             name.setText(player.getName());
             stage.close();
