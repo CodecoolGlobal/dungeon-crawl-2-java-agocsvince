@@ -5,17 +5,39 @@ import com.codecool.dungeoncrawl.logic.actors.ai.*;
 import com.codecool.dungeoncrawl.logic.items.*;
 import com.codecool.dungeoncrawl.logic.actors.Player;
 
-
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MapLoader {
-    public static GameMap loadMap() {
-        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/map.txt");
+
+    private static ArrayList<String> maps = new ArrayList<>();
+    private static int currentMapIndex = 0;
+
+
+    static {
+        maps.add("map1");
+    }
+
+    private static GameMap activeMap;
+
+    public static GameMap getActiveMap() {
+        return activeMap;
+    }
+
+    public static GameMap loadNextMap() {
+        activeMap = loadMap(currentMapIndex+1);
+        return activeMap;
+    }
+
+    public static GameMap loadMap(int mapIndex) {
+
+        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/"+maps.get(mapIndex)+".txt");
+        System.out.println(streamFromTxt);
         Scanner scanner = new Scanner(streamFromTxt);
         int width = scanner.nextInt();
         int height = scanner.nextInt();
-
+        currentMapIndex = mapIndex;
         scanner.nextLine(); // empty line
 
         GameMap map = new GameMap(width, height, CellType.EMPTY);
@@ -72,7 +94,8 @@ public class MapLoader {
                 }
             }
         }
-        return map;
+        activeMap = map;
+        return activeMap;
     }
 
 }
