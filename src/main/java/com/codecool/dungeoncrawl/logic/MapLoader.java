@@ -5,17 +5,39 @@ import com.codecool.dungeoncrawl.logic.actors.ai.*;
 import com.codecool.dungeoncrawl.logic.items.*;
 import com.codecool.dungeoncrawl.logic.actors.Player;
 
-
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MapLoader {
-    public static GameMap loadMap() {
-        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/map.txt");
+
+    private static ArrayList<String> maps = new ArrayList<>();
+    private static int currentMapIndex = 0;
+
+
+    static {
+        maps.add("map1");
+    }
+
+    private static GameMap activeMap;
+
+    public static GameMap getActiveMap() {
+        return activeMap;
+    }
+
+    public static GameMap loadNextMap() {
+        activeMap = loadMap(currentMapIndex+1);
+        return activeMap;
+    }
+
+    public static GameMap loadMap(int mapIndex) {
+
+        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/"+maps.get(mapIndex)+".txt");
+        System.out.println(streamFromTxt);
         Scanner scanner = new Scanner(streamFromTxt);
         int width = scanner.nextInt();
         int height = scanner.nextInt();
-
+        currentMapIndex = mapIndex;
         scanner.nextLine(); // empty line
 
         GameMap map = new GameMap(width, height, CellType.EMPTY);
@@ -34,14 +56,6 @@ public class MapLoader {
                         case '.':
                             cell.setType(CellType.FLOOR);
                             break;
-                        case 's':
-                            cell.setType(CellType.FLOOR);
-                            new Skeleton(cell);
-                            break;
-                        case 'g':
-                            cell.setType(CellType.FLOOR);
-                            GameEngine.aiList.add(new Golem(cell));
-                            break;
                         case '@':
                             cell.setType(CellType.FLOOR);
                             map.setPlayer(new Player(cell));
@@ -58,6 +72,14 @@ public class MapLoader {
                             cell.setType(CellType.FLOOR);
                             new Door(cell);
                             break;
+                        case 's':
+                            cell.setType(CellType.FLOOR);
+                            new Skeleton(cell);
+                            break;
+                        case 'g':
+                            cell.setType(CellType.FLOOR);
+                            GameEngine.aiList.add(new Golem(cell));
+                            break;
                         case 'W':
                             GameEngine.aiList.add(new Wraith(cell, map));
                             break;
@@ -71,7 +93,8 @@ public class MapLoader {
                 }
             }
         }
-        return map;
+        activeMap = map;
+        return activeMap;
     }
 
 }
