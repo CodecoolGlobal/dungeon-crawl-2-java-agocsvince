@@ -37,7 +37,7 @@ public class GameEngine extends Application {
 
 
     public static SoundEngine soundEngine = new SoundEngine();
-    GameMap map = MapLoader.loadMap();
+    GameMap map = MapLoader.loadMap(0);
     Player player = map.getPlayer();
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
