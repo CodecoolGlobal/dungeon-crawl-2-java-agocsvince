@@ -214,6 +214,7 @@ public class GameEngine extends Application {
             case S:
                 Player player = map.getPlayer();
                 dbManager.savePlayer(player);
+                dbManager.saveEnemies(aiList);
                 break;
         }
     }
