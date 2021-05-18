@@ -60,7 +60,10 @@ public class Cell implements Drawable {
     }
 
     public Cell getNeighbor(int dx, int dy) {
-        return gameMap.getCell(x + dx, y + dy);
+        if (gameMap.getCell(x + dx, y + dy) != null)
+            return gameMap.getCell(x + dx, y + dy);
+        else
+            return null;
     }
 
     public boolean hasItem() {

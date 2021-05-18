@@ -28,11 +28,13 @@ public class Player extends Actor {
     }
 
     public void move(int dx, int dy) {
-        Cell neighbor = cell.getNeighbor(dx, dy);
-        if (neighbor.getType() != CellType.WALL && !Arrays.asList(developers).contains(this.name)) {
-            move(dx, dy, neighbor);
-        } else if (Arrays.asList(developers).contains(this.name)) {
-            move(dx, dy, neighbor);
+        if (cell.getNeighbor(dx, dy) != null){
+            Cell neighbor = cell.getNeighbor(dx, dy);
+            if (neighbor.getType() != CellType.WALL && !Arrays.asList(developers).contains(this.name)) {
+                move(dx, dy, neighbor);
+            } else if (Arrays.asList(developers).contains(this.name)) {
+                move(dx, dy, neighbor);
+            }
         }
     }
 
