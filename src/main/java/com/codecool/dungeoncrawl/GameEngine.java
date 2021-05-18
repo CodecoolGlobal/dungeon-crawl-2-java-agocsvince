@@ -13,21 +13,26 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.Reflection;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -52,7 +57,6 @@ public class GameEngine extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -80,38 +84,43 @@ public class GameEngine extends Application {
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(menuBar(name));
 
-        MenuBar menuBar = new MenuBar();
+
+        Reflection reflection = new Reflection();
+        reflection.setTopOffset(0);
+        reflection.setTopOpacity(0.75);
+        reflection.setBottomOpacity(0.10);
+        reflection.setFraction(0.7);
+
         // Start
-        Menu start = new Menu();
         Label menuLabelStart = new Label("Start");
-        menuBar.getMenus().add(start);
-        start.setGraphic(menuLabelStart);
+        menuLabelStart.setGraphic(new ImageView());
+        setUpLabel(reflection, menuLabelStart);
 
         menuLabelStart.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
 
         // Options
-        Menu options = new Menu();
         Label menuLabelOptions = new Label("Options");
-        menuBar.getMenus().add(options);
-        options.setGraphic(menuLabelOptions);
+        setUpLabel(reflection, menuLabelOptions);
 
         MenuItem character = new MenuItem("Character");
-        options.getItems().addAll(character);
 
         // Exit
-        Menu exit = new Menu();
         Label menuLabelExit = new Label("Exit");
-        menuBar.getMenus().add(exit);
-        exit.setGraphic(menuLabelExit);
+        setUpLabel(reflection, menuLabelExit);
 
         menuLabelExit.setOnMouseClicked(mouseEvent -> System.exit(0));
-
+        VBox vBox = new VBox(menuLabelStart, menuLabelOptions, menuLabelExit);
+        vBox.setSpacing(40);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setStyle("-fx-background-color: #242222");
 
         ui.setHgap(10);
         ui.setVgap(10);
-        borderPane.setCenter(menuBar);
-        menuBar.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH);
-        menuBar.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        borderPane.setCenter(vBox);
+        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH);
+        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
+        vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setRight(ui);
 
         Scene scene = new Scene(borderPane);
@@ -147,6 +156,12 @@ public class GameEngine extends Application {
 
     }
 
+    private void setUpLabel(Reflection reflection, Label menuLabelStart) {
+        menuLabelStart.setTextFill(Color.WHITE);
+        menuLabelStart.setEffect(reflection);
+        menuLabelStart.setFont(new Font("Arial", 18));
+    }
+
     private void setupDbManager () {
             dbManager = new GameDatabaseManager();
             try {
@@ -169,8 +184,18 @@ public class GameEngine extends Application {
         private MenuBar menuBar (Label name){
             MenuBar menuBar = new MenuBar();
             Menu menuFile = new Menu("Settings");
-            MenuItem add = new MenuItem("Change name");
-            add.setOnAction(t -> {
+            MenuItem changeName = new MenuItem("Change name");
+            Menu volume = new Menu("Volume");
+            CustomMenuItem changeVolume = new CustomMenuItem();
+            Slider slider = new Slider(0, 100, 50);
+            volume.getItems().addAll(changeVolume);
+            volume.setOnAction(event -> {
+                // TODO: changing volume with slider
+                slider.getValue(); // value of the slider, we should add this as parameter
+            });
+
+            changeVolume.setContent(slider);
+            changeName.setOnAction(t -> {
                 Stage stage = new Stage();
                 TextField textField = new TextField();
                 HBox hbox = new HBox(5);
@@ -189,7 +214,7 @@ public class GameEngine extends Application {
                 stage.setScene(scene);
                 stage.show();
             });
-            menuFile.getItems().addAll(add);
+            menuFile.getItems().addAll(changeName, volume);
             menuBar.getMenus().addAll(menuFile);
             return menuBar;
         }
