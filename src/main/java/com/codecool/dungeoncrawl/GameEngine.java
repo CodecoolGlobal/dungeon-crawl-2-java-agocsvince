@@ -64,34 +64,23 @@ public class GameEngine extends Application {
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
 
-        GridPane ui = new GridPane();
+
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
 
-        ui.setPrefWidth(200);
-        ui.setPadding(new Insets(10));
+
         Label name = new Label("Player");
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
         Label inventory = new Label("Inventory: ");
 
-        ui.add(name, 0, 0);
-        ui.add(mute, 1, 0);
-        ui.add(new Label("Health: "), 0, 1);
-        ui.add(healthLabel, 1, 1);
-        ui.add(pickupButton, 0, 2);
-        ui.add(inventory, 0, 3);
-        ui.add(inventoryLabel, 0, 4);
+        GridPane ui = setUpGridPane(name, inventory);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(menuBar(name));
 
 
-        Reflection reflection = new Reflection();
-        reflection.setTopOffset(0);
-        reflection.setTopOpacity(0.75);
-        reflection.setBottomOpacity(0.10);
-        reflection.setFraction(0.7);
+        Reflection reflection = setUpReflection();
 
         // Start
         Label menuLabelStart = setUpLabel(reflection, "Start");
@@ -142,6 +131,29 @@ public class GameEngine extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+    }
+
+    private GridPane setUpGridPane(Label name, Label inventory) {
+        GridPane ui = new GridPane();
+        ui.setPrefWidth(200);
+        ui.setPadding(new Insets(10));
+        ui.add(name, 0, 0);
+        ui.add(mute, 1, 0);
+        ui.add(new Label("Health: "), 0, 1);
+        ui.add(healthLabel, 1, 1);
+        ui.add(pickupButton, 0, 2);
+        ui.add(inventory, 0, 3);
+        ui.add(inventoryLabel, 0, 4);
+        return ui;
+    }
+
+    private Reflection setUpReflection() {
+        Reflection reflection = new Reflection();
+        reflection.setTopOffset(0);
+        reflection.setTopOpacity(0.75);
+        reflection.setBottomOpacity(0.10);
+        reflection.setFraction(0.7);
+        return reflection;
     }
 
     private Label setUpLabel(Reflection reflection, String start) {
