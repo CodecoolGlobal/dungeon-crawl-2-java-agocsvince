@@ -276,30 +276,31 @@ public class GameEngine extends Application {
             inventoryLabel.setText(inventoryLabel.getText() + item.getName() + " ");
         }
 
-        private void onKeyPressed (KeyEvent keyEvent){
-            switch (keyEvent.getCode()) {
-                case UP:
-                    map.getPlayer().move(0, -1);
-                    refresh();
-                    break;
-                case DOWN:
-                    map.getPlayer().move(0, 1);
-                    refresh();
-                    break;
-                case LEFT:
-                    map.getPlayer().move(-1, 0);
-                    refresh();
-                    break;
-                case RIGHT:
-                    map.getPlayer().move(1, 0);
-                    refresh();
-                    break;
-                case S:
-                    Player player = map.getPlayer();
-                    dbManager.savePlayer(player);
-                    break;
-            }
+    private void onKeyPressed (KeyEvent keyEvent) {
+        switch (keyEvent.getCode()) {
+            case UP:
+                map.getPlayer().move(0, -1);
+                refresh();
+                break;
+            case DOWN:
+                map.getPlayer().move(0, 1);
+                refresh();
+                break;
+            case LEFT:
+                map.getPlayer().move(-1, 0);
+                refresh();
+                break;
+            case RIGHT:
+                map.getPlayer().move(1, 0);
+                refresh();
+                break;
+            case S:
+                Player player = map.getPlayer();
+                dbManager.savePlayer(player);
+                dbManager.saveEnemies(aiList);
+                break;
         }
+    }
 
         private void refresh () {
             if (!player.isAlive())

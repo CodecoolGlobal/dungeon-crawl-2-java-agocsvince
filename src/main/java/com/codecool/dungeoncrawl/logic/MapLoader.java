@@ -56,6 +56,15 @@ public class MapLoader {
                         case '.':
                             cell.setType(CellType.FLOOR);
                             break;
+                        case 's':
+                            cell.setType(CellType.FLOOR);
+                            //new Skeleton(cell);
+                            GameEngine.aiList.add(new Skeleton(cell));
+                            break;
+                        case 'g':
+                            cell.setType(CellType.FLOOR);
+                            GameEngine.aiList.add(new Golem(cell));
+                            break;
                         case '@':
                             cell.setType(CellType.FLOOR);
                             map.setPlayer(new Player(cell));
@@ -71,14 +80,6 @@ public class MapLoader {
                         case 'd':
                             cell.setType(CellType.FLOOR);
                             new Door(cell);
-                            break;
-                        case 's':
-                            cell.setType(CellType.FLOOR);
-                            new Skeleton(cell);
-                            break;
-                        case 'g':
-                            cell.setType(CellType.FLOOR);
-                            GameEngine.aiList.add(new Golem(cell));
                             break;
                         case 'W':
                             GameEngine.aiList.add(new Wraith(cell, map));
