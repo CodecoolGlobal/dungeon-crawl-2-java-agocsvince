@@ -36,7 +36,8 @@ public class MapLoader {
                             break;
                         case 's':
                             cell.setType(CellType.FLOOR);
-                            new Skeleton(cell);
+                            //new Skeleton(cell);
+                            GameEngine.aiList.add(new Skeleton(cell));
                             break;
                         case 'g':
                             cell.setType(CellType.FLOOR);
