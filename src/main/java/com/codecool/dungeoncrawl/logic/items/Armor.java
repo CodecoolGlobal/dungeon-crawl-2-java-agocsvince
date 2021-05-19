@@ -6,16 +6,16 @@ import java.util.HashMap;
 
 public class Armor extends Equipable {
 
-    private final static HashMap<ITEM, ARMOR_STAT> itemArmorStatHashMap = new HashMap<>();
+    private final static HashMap<ITEM_NAME, ARMOR_STAT> itemArmorStatHashMap = new HashMap<>();
 
     static {
-        itemArmorStatHashMap.put(ITEM.ARMOR_LIGHT, ARMOR_STAT.ARMOR_LIGHT_STAT);
-        itemArmorStatHashMap.put(ITEM.ARMOR_MEDIUM, ARMOR_STAT.ARMOR_MEDIUM_STAT);
-        itemArmorStatHashMap.put(ITEM.ARMOR_HEAVY, ARMOR_STAT.ARMOR_HEAVY_STAT);
+        itemArmorStatHashMap.put(ITEM_NAME.ARMOR_LIGHT, ARMOR_STAT.ARMOR_LIGHT_STAT);
+        itemArmorStatHashMap.put(ITEM_NAME.ARMOR_MEDIUM, ARMOR_STAT.ARMOR_MEDIUM_STAT);
+        itemArmorStatHashMap.put(ITEM_NAME.ARMOR_HEAVY, ARMOR_STAT.ARMOR_HEAVY_STAT);
 
-        itemArmorStatHashMap.put(ITEM.HELMET_LIGHT, ARMOR_STAT.HELMET_LIGHT_STAT);
-        itemArmorStatHashMap.put(ITEM.HELMET_MEDIUM, ARMOR_STAT.HELMET_MEDIUM_STAT);
-        itemArmorStatHashMap.put(ITEM.HELMET_HEAVY, ARMOR_STAT.HELMET_HEAVY_STAT);
+        itemArmorStatHashMap.put(ITEM_NAME.HELMET_LIGHT, ARMOR_STAT.HELMET_LIGHT_STAT);
+        itemArmorStatHashMap.put(ITEM_NAME.HELMET_MEDIUM, ARMOR_STAT.HELMET_MEDIUM_STAT);
+        itemArmorStatHashMap.put(ITEM_NAME.HELMET_HEAVY, ARMOR_STAT.HELMET_HEAVY_STAT);
     }
 
     enum ARMOR_STAT {
@@ -43,7 +43,7 @@ public class Armor extends Equipable {
         return returnMap;
     }
 
-    public Armor(ITEM item, Cell cell) {
+    public Armor(ITEM_NAME item, Cell cell) {
         super(item, cell);
         //Setup equip slot
     }

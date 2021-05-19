@@ -62,11 +62,11 @@ public class MapLoader {
                             break;
                         case 'k':
                             cell.setType(CellType.FLOOR);
-                            new Item(Item.ITEM.KEY_YELLOW, cell);
+                            new Item(Item.ITEM_NAME.KEY_YELLOW, cell);
                             break;
                         case 'w':
                             cell.setType(CellType.FLOOR);
-                            new Item(Item.ITEM.SWORD, cell);
+                            new Item(Item.ITEM_NAME.SWORD, cell);
                             break;
                         case 'd':
                             cell.setType(CellType.FLOOR);

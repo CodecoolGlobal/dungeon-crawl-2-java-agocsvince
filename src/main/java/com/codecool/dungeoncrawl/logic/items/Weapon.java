@@ -7,11 +7,11 @@ import java.util.HashMap;
 public class Weapon extends Equipable {
 
 
-    private final static HashMap<ITEM, WEAPON_STAT> itemWeaponStatHashMap = new HashMap<>();
+    private final static HashMap<ITEM_NAME, WEAPON_STAT> itemWeaponStatHashMap = new HashMap<>();
 
     static {
-        itemWeaponStatHashMap.put(ITEM.SWORD, WEAPON_STAT.SWORD);
-        itemWeaponStatHashMap.put(ITEM.KNIFE, WEAPON_STAT.KNIFE);
+        itemWeaponStatHashMap.put(ITEM_NAME.SWORD, WEAPON_STAT.SWORD);
+        itemWeaponStatHashMap.put(ITEM_NAME.KNIFE, WEAPON_STAT.KNIFE);
     }
 
     enum WEAPON_STAT {
@@ -34,7 +34,7 @@ public class Weapon extends Equipable {
         return returnMap;
     }
 
-    public Weapon(ITEM item, Cell cell) {
+    public Weapon(ITEM_NAME item, Cell cell) {
         super(item, cell);
         equipSlot = EQUIP_POSITION.HAND;
     }

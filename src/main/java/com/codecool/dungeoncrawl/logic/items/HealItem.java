@@ -29,7 +29,7 @@ public class HealItem extends Item {
         player.heal(HEAL_ITEM_STAT.POTION_HEALTH.healRegen);
     }
 
-    public HealItem(ITEM item, Cell cell) {
+    public HealItem(ITEM_NAME item, Cell cell) {
         super(item, cell);
     }
 }

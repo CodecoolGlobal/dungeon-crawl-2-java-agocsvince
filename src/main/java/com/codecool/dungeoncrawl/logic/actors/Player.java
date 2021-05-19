@@ -4,7 +4,7 @@ import com.codecool.dungeoncrawl.GameEngine;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
-import com.codecool.dungeoncrawl.logic.items.Item;
+import com.codecool.dungeoncrawl.logic.items.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,7 +51,7 @@ public class Player extends Actor {
         }
         if (neighbor.getDoor() != null && neighbor.getDoor().getTileName().equals("closedDoor")) {
             for (Item item : inventory) {
-                if (item.getItemID() == Item.ITEM.KEY_YELLOW.id) {
+                if (item.getItemID() == Item.ITEM_NAME.KEY_YELLOW.id) {
                     neighbor.openDoor(item);
                     inventory.remove(item);
                     return;
@@ -84,11 +84,20 @@ public class Player extends Actor {
     }
 
     public void dropItem(Item item){
-
+        if (cell.getItem() == null) {
+            inventory.remove(item);
+            GameEngine.soundEngine.play("pickup");
+        }
     }
 
     public void interact(Item item){
+        if (item instanceof  Armor){
+            equip(item);
+        } else if (item instanceof Weapon){
 
+        } else if (item instanceof HealItem){
+
+        }
     }
 
     public void equip(Item item){

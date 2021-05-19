@@ -12,7 +12,7 @@ public class Item implements Drawable {
     @Override
     public String getTileName() {
         String name = null;
-        for (ITEM item : ITEM.values()) {
+        for (ITEM_NAME item : ITEM_NAME.values()) {
             if (item.id == itemType.id) {
                 name = item.tileName;
                 break;
@@ -21,7 +21,7 @@ public class Item implements Drawable {
         return name;
     }
 
-    public enum ITEM {
+    public enum ITEM_NAME {
         SWORD(0, "sword"),
         KNIFE(1, "knife"),
 
@@ -41,14 +41,14 @@ public class Item implements Drawable {
         public final int id;
         public final String tileName;
 
-        ITEM(int id, String tileName) {
+        ITEM_NAME(int id, String tileName) {
             this.id = id;
             this.tileName = tileName;
         }
     }
 
 
-    public Item(ITEM item, Cell cell) {
+    public Item(ITEM_NAME item, Cell cell) {
         this.itemType = item;
         this.cell = cell;
         cell.setItem(this);
@@ -56,7 +56,7 @@ public class Item implements Drawable {
 
     protected Player player = GameEngine.getPlayer();
     protected Equipable.EQUIP_POSITION equipSlot = Equipable.EQUIP_POSITION.NONE;
-    protected final ITEM itemType;
+    protected final ITEM_NAME itemType;
     private Cell cell;
 
     public int getItemID() {
