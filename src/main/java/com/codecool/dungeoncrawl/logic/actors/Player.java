@@ -7,11 +7,14 @@ import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
 import com.codecool.dungeoncrawl.logic.items.Item;
 import com.codecool.dungeoncrawl.logic.items.Key;
 
+import java.rmi.server.UID;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class Player extends Actor {
+    private UUID uuid = UUID.randomUUID();
     private final Set<Item> inventory = new HashSet<>();
     private String name;
     private final String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
@@ -21,6 +24,10 @@ public class Player extends Actor {
         health = 10;
         damage = 5;
         this.name = "developer";
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public void setName(String name) {
