@@ -13,30 +13,24 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.Effect;
 import javafx.scene.effect.Reflection;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -54,6 +48,7 @@ public class GameEngine extends Application {
     GraphicsContext context = canvas.getGraphicsContext2D();
     Label healthLabel = new Label();
     Label inventoryLabel = new Label();
+    BorderPane borderPane = new BorderPane();
     Button pickupButton = new Button("Pick up item (E)");
     Button mute = new Button("Mute");
 
@@ -64,42 +59,38 @@ public class GameEngine extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
-
-
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
 
-
         Label name = new Label("Player");
+        Label inventory = new Label("Inventory: ");
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
-        Label inventory = new Label("Inventory: ");
 
         GridPane ui = setUpGridPane(name, inventory);
 
-        BorderPane borderPane = new BorderPane();
         borderPane.setTop(menuBar(name));
 
-
-        Reflection reflection = setUpReflection();
-
-        // Start
-        Label menuLabelStart = setUpLabel(reflection, "Start");
-
+        // Menu
+        Label menuLabelStart = newLabel("Start");
+        Label menuLabelOptions = newLabel("Options");
+        Label menuLabelExit = newLabel("Exit");
+        List<Label> menuLabels = Arrays.asList(menuLabelStart, menuLabelOptions, menuLabelExit);
+        //Options
+        Label optionsLabelName = newLabel("Name");
+        Label optionsLabelBack = newLabel("Back");
+        List<Label> optionLabels = Arrays.asList(optionsLabelName, optionsLabelBack);
+        //Menu actions
         menuLabelStart.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
-
-        // Options
-        Label menuLabelOptions = setUpLabel(reflection, "Options");
-        // TODO: drop-down or something with settings
-
-        // Exit
-        Label menuLabelExit = setUpLabel(reflection, "Exit");
-
+        menuLabelOptions.setOnMouseClicked(mouseEvent -> {
+            //Option actions
+            optionsLabelBack.setOnMouseClicked(mouseEvent1 ->
+                    setUpVBox(ui, borderPane, menuLabels));
+            setUpVBox(ui, borderPane, optionLabels);
+        });
         menuLabelExit.setOnMouseClicked(mouseEvent -> System.exit(0));
 
-        ui.setHgap(10);
-        ui.setVgap(10);
-        setUpVBox(ui, borderPane, menuLabelStart, menuLabelOptions, menuLabelExit);
+        setUpVBox(ui, borderPane, menuLabels);
 
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
@@ -145,6 +136,8 @@ public class GameEngine extends Application {
         ui.add(pickupButton, 0, 2);
         ui.add(inventory, 0, 3);
         ui.add(inventoryLabel, 0, 4);
+        ui.setHgap(10);
+        ui.setVgap(10);
         return ui;
     }
 
@@ -157,14 +150,22 @@ public class GameEngine extends Application {
         return reflection;
     }
 
-    private Label setUpLabel(Reflection reflection, String start) {
+    private Label newLabel(String start) {
         Label menuLabelStart = new Label(start);
-        setUpLabel(reflection, menuLabelStart);
+        setUpLabel(menuLabelStart);
         return menuLabelStart;
     }
 
-    private void setUpVBox(GridPane ui, BorderPane borderPane, Label menuLabelStart, Label menuLabelOptions, Label menuLabelExit) {
-        VBox vBox = new VBox(menuLabelStart, menuLabelOptions, menuLabelExit);
+    private void setUpLabel(Label menuLabelStart) {
+        Reflection reflection = setUpReflection();
+        menuLabelStart.setTextFill(Color.WHITE);
+        menuLabelStart.setEffect(reflection);
+        menuLabelStart.setFont(new Font("Arial", 18));
+    }
+
+    private void setUpVBox(GridPane ui, BorderPane borderPane, List<Label> labels) {
+        VBox vBox = new VBox();
+        vBox.getChildren().addAll(labels);
         vBox.setSpacing(40);
         vBox.setAlignment(Pos.CENTER);
         vBox.setStyle("-fx-background-color: #242222");
@@ -174,12 +175,6 @@ public class GameEngine extends Application {
         vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
         vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setRight(ui);
-    }
-
-    private void setUpLabel(Reflection reflection, Label menuLabelStart) {
-        menuLabelStart.setTextFill(Color.WHITE);
-        menuLabelStart.setEffect(reflection);
-        menuLabelStart.setFont(new Font("Arial", 18));
     }
 
     private void setupDbManager () {

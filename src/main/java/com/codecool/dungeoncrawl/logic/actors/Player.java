@@ -85,7 +85,8 @@ public class Player extends Actor {
 
     public void pickUpItem(Item item) {
         inventory.add(item);
-        addItemBoost(item);
+        if (!item.getTileName().equals("key"))
+            addItemBoost(item);
         GameEngine.soundEngine.play("pickup");
     }
 
