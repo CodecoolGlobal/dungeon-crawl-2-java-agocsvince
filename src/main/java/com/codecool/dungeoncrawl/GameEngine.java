@@ -59,6 +59,8 @@ public class GameEngine extends Application {
     private final BorderPane borderPane = new BorderPane();
     private GridPane ui;
     private List<Label> menuLabels;
+    private final Label name = new Label("Player");
+    private final Label inventory = new Label("Inventory: ");
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
     private List<Label> endLabels;
@@ -75,13 +77,12 @@ public class GameEngine extends Application {
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
 
-        Label name = new Label("Player");
-        Label inventory = new Label("Inventory: ");
+
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
         ui = setUpGridPane(name, inventory);
         setUpNameField();
-        borderPane.setTop(menuBar(name));
+
         Scene scene = new Scene(borderPane);
 
         // Menu
@@ -144,6 +145,7 @@ public class GameEngine extends Application {
 
     private void afterStart(Scene scene) {
         borderPane.setRight(ui);
+        borderPane.setTop(menuBar(name));
         scene.setOnKeyPressed(this::onKeyPressed);
         //This is the engines fixed time loop for calculating anything that doesn't correlate with the player actions
         KeyFrame enemyMovementFrame = new KeyFrame(Duration.millis(2000), e -> enemyMovement());
