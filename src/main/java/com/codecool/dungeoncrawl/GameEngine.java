@@ -30,9 +30,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +66,6 @@ public class GameEngine extends Application {
     Button[][] inventoryButtons = new Button[4][6];
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
-
 
     public static void main(String[] args) {
         launch(args);
@@ -121,8 +122,20 @@ public class GameEngine extends Application {
 
 
         Scene scene = new Scene(borderPane);
+        setUpLabels(scene);
 
-        // Menu
+        setUpVBox(menuLabels);
+
+        primaryStage.setScene(scene);
+        refresh();
+        primaryStage.setTitle("Dungeon Crawl");
+        //This creates the event listener inside the scene for checking key input
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void setUpLabels(Scene scene) {
         Label menuLabelStart = newLabel("Start");
         Label menuLabelOptions = newLabel("Options");
         Label menuLabelExit = newLabel("Exit");
@@ -135,9 +148,9 @@ public class GameEngine extends Application {
         Label endScreenPlayAgain = newLabel("Play again");
         Label endScreenMenu = newLabel("Main menu");
         endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain ,endScreenMenu);
+        //End screen actions
         endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         endScreenMenu.setOnMouseClicked(mouseEvent -> {
-
             setUpVBox(menuLabels);
         });
         //Menu actions
@@ -148,15 +161,16 @@ public class GameEngine extends Application {
         menuLabelOptions.setOnMouseClicked(mouseEvent -> {
             //Option actions
             optionsLabelName.setOnMouseClicked(mouseEvent1 -> {
-
-                VBox vBox = new VBox(newLabel("Change name"), nameField);
+                Label backLabel = newLabel("Back");
+                VBox vBox = new VBox(newLabel("Change name"), nameField, backLabel);
                 nameField.setOnKeyPressed(k -> {
                     if (k.getCode().equals(KeyCode.ENTER)) {
                         player.setName(nameField.getText());
                         setUpVBox(optionLabels);
                     }
                 });
-
+                backLabel.setOnMouseClicked(mouseEvent2 ->
+                        setUpVBox(optionLabels));
                 styleVBox(vBox);
             });
             optionsLabelBack.setOnMouseClicked(mouseEvent1 ->
@@ -164,19 +178,6 @@ public class GameEngine extends Application {
             setUpVBox(optionLabels);
         });
         menuLabelExit.setOnMouseClicked(mouseEvent -> System.exit(0));
-
-        setUpVBox(menuLabels);
-
-
-        primaryStage.setScene(scene);
-        refresh();
-        primaryStage.setTitle("Dungeon Crawl");
-        //This creates the event listener inside the scene for checking key input
-
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
     }
 
     private void setUpNameField() {
@@ -286,36 +287,77 @@ public class GameEngine extends Application {
         }
     }
 
-
     private MenuBar menuBar(Label name) {
         MenuBar menuBar = new MenuBar();
         Menu menuFile = new Menu("Settings");
         Menu volume = new Menu("Volume");
-        CustomMenuItem changeVolume = new CustomMenuItem();
-        setupSlider(volume, changeVolume);
         MenuItem changeName = new MenuItem("Change name");
+        CustomMenuItem changeVolume = new CustomMenuItem();
+
+        setupSlider(volume, changeVolume);
         changeName.setOnAction(t -> {
             Stage stage = new Stage();
-
-            HBox hbox = new HBox(5);
-            hbox.setPadding(new Insets(25));
-            Label label1 = new Label("Name: ");
-            Button button1 = new Button("Submit");
-            button1.setOnAction(e -> setNameLabel(name, stage, nameField));
+            HBox hbox = getHBox();
+            Button submit = new Button("Submit");
+            submit.setOnAction(e -> setNameLabel(name, stage, nameField));
             nameField.setOnKeyPressed(k -> {
                 if (k.getCode().equals(KeyCode.ENTER)) {
                     setNameLabel(name, stage, nameField);
                 }
             });
-            hbox.setMinSize(100, 75);
-            hbox.getChildren().addAll(label1, nameField, button1);
+
+            hbox.getChildren().addAll(newLabel("Name: "), nameField, submit);
             Scene scene = new Scene(hbox);
             stage.setScene(scene);
             stage.show();
         });
         menuFile.getItems().addAll(changeName, volume);
-        menuBar.getMenus().addAll(menuFile);
+
+        Menu menuSave = new Menu("Saves");
+        MenuItem menuItemSave = new MenuItem("Save");
+        menuSave.getItems().addAll(menuItemSave, new SeparatorMenuItem()); // TODO: List all saves
+        menuItemSave.setOnAction(event -> {
+            Stage stage = new Stage();
+            HBox hbox = getHBox();
+            Button save = new Button("Save");
+            Button cancel = new Button("Cancel");
+            save.setOnAction(e -> {
+                //TODO: Save
+            });
+            cancel.setOnAction(e -> {
+                stage.close();
+            });
+            TextField saveField = new TextField();
+            saveField.setOnKeyPressed(k -> {
+                if (k.getCode().equals(KeyCode.ENTER)) {
+                    //TODO: Save
+                }
+            });
+
+            hbox.getChildren().addAll(new Label("File name: "), saveField, save, cancel);
+            Scene scene = new Scene(hbox);
+            stage.setScene(scene);
+            stage.show();
+        });
+        Menu menuImport = new Menu("Import");
+        MenuItem menuItemImport = new MenuItem("Import");
+        menuImport.getItems().addAll(menuItemImport);
+        menuItemImport.setOnAction(event -> {
+            Stage importStage = new Stage();
+            FileChooser fileChooser = new FileChooser();
+            File selectedFile = fileChooser.showOpenDialog(importStage);
+            // TODO: Load saves
+        });
+
+        menuBar.getMenus().addAll(menuFile, menuSave, menuImport);
         return menuBar;
+    }
+
+    private HBox getHBox() {
+        HBox hbox = new HBox(5);
+        hbox.setPadding(new Insets(25));
+        hbox.setMinSize(100, 75);
+        return hbox;
     }
 
     private void setupSlider(Menu volume, CustomMenuItem changeVolume) {
@@ -350,7 +392,6 @@ public class GameEngine extends Application {
         }
         refresh();
     }
-
 
     private void pickupButtonPressed() {
         Cell playerCell = player.getCell();
@@ -396,6 +437,7 @@ public class GameEngine extends Application {
             borderPane.setRight(null);
             borderPane.setTop(null);
             setUpVBox(endLabels);
+            soundEngine.toggleMute();
         }
         context.setFill(Color.BLACK);
         context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
