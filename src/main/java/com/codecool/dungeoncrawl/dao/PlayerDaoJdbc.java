@@ -16,13 +16,13 @@ public class PlayerDaoJdbc implements PlayerDao {
     @Override
     public void add(PlayerModel player) {
         try (Connection conn = dataSource.getConnection()) {
-            String sql = "INSERT INTO player (player_name, hp, x, y, id) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO player (id, player_name, hp, x, y) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, player.getPlayerName());
-            statement.setInt(2, player.getHp());
-            statement.setInt(3, player.getX());
-            statement.setInt(4, player.getY());
-            statement.setString(5, player.getUuid());
+            statement.setString(1, player.getUuid());
+            statement.setString(2, player.getPlayerName());
+            statement.setInt(3, player.getHp());
+            statement.setInt(4, player.getX());
+            statement.setInt(5, player.getY());
             statement.executeUpdate();
 //            ResultSet resultSet = statement.getGeneratedKeys();
 //            resultSet.next();
@@ -34,7 +34,6 @@ public class PlayerDaoJdbc implements PlayerDao {
 
     @Override
     public void update(PlayerModel player) {
-
     }
 
     @Override
