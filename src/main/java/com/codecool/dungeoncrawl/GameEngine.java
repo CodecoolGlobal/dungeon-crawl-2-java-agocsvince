@@ -54,11 +54,14 @@ public class GameEngine extends Application {
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
     GraphicsContext context = canvas.getGraphicsContext2D();
-    Label healthLabel = new Label();
-    Label inventoryLabel = new Label();
-    BorderPane borderPane = new BorderPane();
-    Button pickupButton = new Button("Pick up item (E)");
-    Button mute = new Button("Mute");
+    private final Label healthLabel = new Label();
+    private final Label inventoryLabel = new Label();
+    private final BorderPane borderPane = new BorderPane();
+    private GridPane ui;
+    private List<Label> menuLabels;
+    private final Button pickupButton = new Button("Pick up item (E)");
+    private final Button mute = new Button("Mute");
+    private List<Label> endLabels;
 
     public static void main(String[] args) {
         launch(args);
@@ -68,30 +71,30 @@ public class GameEngine extends Application {
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
 
-
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
-
 
         Label name = new Label("Player");
         Label inventory = new Label("Inventory: ");
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
+        ui = setUpGridPane(name, inventory);
 
-        GridPane ui = setUpGridPane(name, inventory);
-
-        BorderPane borderPane = new BorderPane();
         borderPane.setTop(menuBar(name));
 
         // Menu
         Label menuLabelStart = newLabel("Start");
         Label menuLabelOptions = newLabel("Options");
         Label menuLabelExit = newLabel("Exit");
-        List<Label> menuLabels = Arrays.asList(menuLabelStart, menuLabelOptions, menuLabelExit);
+        menuLabels = Arrays.asList(menuLabelStart, menuLabelOptions, menuLabelExit);
         //Options
         Label optionsLabelName = newLabel("Name");
         Label optionsLabelBack = newLabel("Back");
         List<Label> optionLabels = Arrays.asList(optionsLabelName, optionsLabelBack);
+        // End screen
+        Label endScreenPlayAgain = newLabel("Play again");
+        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain);
+        endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         //Menu actions
         menuLabelStart.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         menuLabelOptions.setOnMouseClicked(mouseEvent -> {
@@ -308,12 +311,15 @@ public class GameEngine extends Application {
                 dbManager.savePlayer(player);
                 dbManager.saveEnemies(aiList, playerId);
                 break;
+            }
         }
-    }
 
         private void refresh () {
-            if (!player.isAlive())
-                System.exit(0);
+            if (!player.isAlive()) {
+                map = MapLoader.loadMap(0);
+                player = map.getPlayer();
+                setUpVBox(ui, borderPane, endLabels);
+            }
             context.setFill(Color.BLACK);
             context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
             boolean setItemButton = false;
