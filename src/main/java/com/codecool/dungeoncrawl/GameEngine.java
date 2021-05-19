@@ -96,8 +96,13 @@ public class GameEngine extends Application {
         List<Label> optionLabels = Arrays.asList(optionsLabelName, optionsLabelBack);
         // End screen
         Label endScreenPlayAgain = newLabel("Play again");
-        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain);
+        Label endScreenMenu = newLabel("Main menu");
+        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain ,endScreenMenu);
         endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
+        endScreenMenu.setOnMouseClicked(mouseEvent -> {
+
+            setUpVBox(menuLabels);
+        });
         //Menu actions
         menuLabelStart.setOnMouseClicked(mouseEvent -> {
             afterStart(scene);
@@ -352,6 +357,8 @@ public class GameEngine extends Application {
         if (!player.isAlive()) {
             map = MapLoader.loadMap(0);
             player = map.getPlayer();
+            borderPane.setRight(null);
+            borderPane.setTop(null);
             setUpVBox(endLabels);
         }
         context.setFill(Color.BLACK);
