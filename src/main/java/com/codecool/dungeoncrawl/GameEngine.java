@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 public class GameEngine extends Application {
@@ -291,8 +292,9 @@ public class GameEngine extends Application {
                 break;
             case S:
                 Player player = map.getPlayer();
+                UUID playerId = map.getPlayer().getUuid();
                 dbManager.savePlayer(player);
-                dbManager.saveEnemies(aiList);
+                dbManager.saveEnemies(aiList, playerId);
                 break;
         }
     }

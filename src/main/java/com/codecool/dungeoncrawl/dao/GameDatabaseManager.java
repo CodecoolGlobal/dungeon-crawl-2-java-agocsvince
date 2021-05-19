@@ -9,6 +9,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class GameDatabaseManager {
     private PlayerDao playerDao;
@@ -44,10 +45,10 @@ public class GameDatabaseManager {
         return dataSource;
     }
 
-    public void saveEnemies(ArrayList<AiActor> aiList) {
+    public void saveEnemies(ArrayList<AiActor> aiList, UUID uuid) {
         for (AiActor enemy : aiList) {
             AiActorModel model = new AiActorModel(enemy);
-            enemiesDao.add(model);
+            enemiesDao.add(model, uuid);
         }
     }
 }
