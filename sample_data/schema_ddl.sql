@@ -1,3 +1,7 @@
+ALTER TABLE IF EXISTS ONLY public.enemy DROP CONSTRAINT IF EXISTS fk_player_id CASCADE;
+ALTER TABLE IF EXISTS ONLY public.game_state DROP CONSTRAINT IF EXISTS fk_player_id CASCADE;
+
+
 DROP TABLE IF EXISTS public.game_state;
 CREATE TABLE public.game_state (
     id serial NOT NULL PRIMARY KEY,
@@ -5,7 +9,6 @@ CREATE TABLE public.game_state (
     saved_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     player_id text
 );
-
 
 
 DROP TABLE IF EXISTS public.player;
@@ -17,7 +20,6 @@ CREATE TABLE public.player (
     y integer NOT NULL
 );
 
-ALTER TABLE IF EXISTS ONLY public.enemy DROP CONSTRAINT IF EXISTS pk_player_id CASCADE;
 DROP TABLE IF EXISTS public.enemy;
 CREATE TABLE public.enemy (
                                id serial NOT NULL PRIMARY KEY,
