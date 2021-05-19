@@ -127,7 +127,7 @@ public class SoundEngine {
         changeVolume(10);
     }
 
-    private void changeVolume(float value) {
+    public void changeVolume(float value) {
         volume += value;
         volume = Math.min(Math.max(-40, volume), 0);
         Line[] lines = mixer.getSourceLines();

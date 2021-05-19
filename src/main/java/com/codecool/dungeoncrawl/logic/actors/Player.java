@@ -6,11 +6,14 @@ import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
 import com.codecool.dungeoncrawl.logic.items.*;
 
+import java.rmi.server.UID;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class Player extends Actor {
+    private UUID uuid = UUID.randomUUID();
     private final Set<Item> inventory = new HashSet<>();
     private String name;
     private final static String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
@@ -27,16 +30,22 @@ public class Player extends Actor {
         this.name = "developer";
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
     public void move(int dx, int dy) {
-        Cell neighbor = cell.getNeighbor(dx, dy);
-        if (neighbor.getType() != CellType.WALL && !Arrays.asList(developers).contains(this.name)) {
-            move(dx, dy, neighbor);
-        } else if (Arrays.asList(developers).contains(this.name)) {
-            move(dx, dy, neighbor);
+        if (cell.getNeighbor(dx, dy) != null){
+            Cell neighbor = cell.getNeighbor(dx, dy);
+            if (neighbor.getType() != CellType.WALL && !Arrays.asList(developers).contains(this.name)) {
+                move(dx, dy, neighbor);
+            } else if (Arrays.asList(developers).contains(this.name)) {
+                move(dx, dy, neighbor);
+            }
         }
     }
 
