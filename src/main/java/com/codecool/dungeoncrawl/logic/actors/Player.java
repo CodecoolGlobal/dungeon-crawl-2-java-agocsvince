@@ -15,6 +15,11 @@ public class Player extends Actor {
     private String name;
     private final static String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
 
+    private Item headSlot;
+    private Item lHandSlot;
+    private Item rHandSlot;
+    private Item torsoSlot;
+
     public Player(Cell cell) {
         super(cell);
         health = 10;
@@ -76,6 +81,22 @@ public class Player extends Actor {
     public void pickUpItem(Item item) {
         inventory.add(item);
         GameEngine.soundEngine.play("pickup");
+    }
+
+    public void dropItem(Item item){
+
+    }
+
+    public void interact(Item item){
+
+    }
+
+    public void equip(Item item){
+
+    }
+
+    public void heal(int healAmount){
+
     }
 
     public String getTileName() {

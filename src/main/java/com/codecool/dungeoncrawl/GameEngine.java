@@ -37,8 +37,8 @@ public class GameEngine extends Application {
 
 
     public static SoundEngine soundEngine = new SoundEngine();
-    GameMap map = MapLoader.loadMap(0);
-    Player player = map.getPlayer();
+    static GameMap map = MapLoader.loadMap(0);
+    static Player player = map.getPlayer();
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
@@ -52,6 +52,9 @@ public class GameEngine extends Application {
         launch(args);
     }
 
+    public static Player getPlayer() {
+        return player;
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -192,7 +195,7 @@ public class GameEngine extends Application {
                 ai = null;
                 return;
             }
-            ai.makeMove();
+            ai.update();
         }
         refresh();
     }
