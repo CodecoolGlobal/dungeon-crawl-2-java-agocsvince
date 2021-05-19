@@ -62,6 +62,8 @@ public class GameEngine extends Application {
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
     private List<Label> endLabels;
+    private final TextField nameField = new TextField(player.getName());
+
 
     public static void main(String[] args) {
         launch(args);
@@ -70,7 +72,6 @@ public class GameEngine extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
-
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
 
@@ -79,8 +80,9 @@ public class GameEngine extends Application {
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
         ui = setUpGridPane(name, inventory);
-
+        setUpNameField();
         borderPane.setTop(menuBar(name));
+        Scene scene = new Scene(borderPane);
 
         // Menu
         Label menuLabelStart = newLabel("Start");
@@ -96,24 +98,53 @@ public class GameEngine extends Application {
         endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain);
         endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         //Menu actions
-        menuLabelStart.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
+        menuLabelStart.setOnMouseClicked(mouseEvent -> {
+            afterStart(scene);
+
+        });
         menuLabelOptions.setOnMouseClicked(mouseEvent -> {
             //Option actions
+            optionsLabelName.setOnMouseClicked(mouseEvent1 -> {
+
+                VBox vBox = new VBox(newLabel("Change name"), nameField);
+                nameField.setOnKeyPressed(k -> {
+                    if (k.getCode().equals(KeyCode.ENTER)) {
+                        player.setName(nameField.getText());
+                        setUpVBox(optionLabels);
+                    }
+                });
+
+                styleVBox(vBox);
+            });
             optionsLabelBack.setOnMouseClicked(mouseEvent1 ->
-                    setUpVBox(ui, borderPane, menuLabels));
-            setUpVBox(ui, borderPane, optionLabels);
+                    setUpVBox(menuLabels));
+            setUpVBox(optionLabels);
         });
         menuLabelExit.setOnMouseClicked(mouseEvent -> System.exit(0));
 
-        setUpVBox(ui, borderPane, menuLabels);
+        setUpVBox(menuLabels);
 
-        Scene scene = new Scene(borderPane);
+
         primaryStage.setScene(scene);
         refresh();
-        //This creates the event listener inside the scene for checking key input
-        scene.setOnKeyPressed(this::onKeyPressed);
         primaryStage.setTitle("Dungeon Crawl");
+        //This creates the event listener inside the scene for checking key input
 
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+    }
+
+    private void setUpNameField() {
+        nameField.setPromptText(player.getName());
+        nameField.setMaxWidth(200);
+        nameField.setStyle("-fx-background-color: #242222; -fx-text-inner-color: white");
+    }
+
+    private void afterStart(Scene scene) {
+        borderPane.setRight(ui);
+        scene.setOnKeyPressed(this::onKeyPressed);
         //This is the engines fixed time loop for calculating anything that doesn't correlate with the player actions
         KeyFrame enemyMovementFrame = new KeyFrame(Duration.millis(2000), e -> enemyMovement());
         Timeline timeline = new Timeline(enemyMovementFrame);
@@ -134,9 +165,18 @@ public class GameEngine extends Application {
             }
         });
         soundEngine.start();
+        borderPane.setCenter(canvas);
+    }
 
-        primaryStage.setScene(scene);
-        primaryStage.show();
+    private void styleVBox(VBox vBox) {
+        vBox.setSpacing(40);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setStyle("-fx-background-color: #242222");
+        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH + 200);
+        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
+        vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        borderPane.setCenter(vBox);
 
     }
 
@@ -178,69 +218,61 @@ public class GameEngine extends Application {
         menuLabelStart.setFont(new Font("Arial", 18));
     }
 
-    private void setUpVBox(GridPane ui, BorderPane borderPane, List<Label> labels) {
+    private void setUpVBox(List<Label> labels) {
         VBox vBox = new VBox();
         vBox.getChildren().addAll(labels);
-        vBox.setSpacing(40);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.setStyle("-fx-background-color: #242222");
-        borderPane.setCenter(vBox);
-        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH);
-        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
-        vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
-        vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
-        borderPane.setRight(ui);
+        styleVBox(vBox);
     }
 
-    private void setupDbManager () {
-            dbManager = new GameDatabaseManager();
-            try {
-                dbManager.setup();
-            } catch (SQLException ex) {
-                System.out.println("Cannot connect to database.");
-            }
+    private void setupDbManager() {
+        dbManager = new GameDatabaseManager();
+        try {
+            dbManager.setup();
+        } catch (SQLException ex) {
+            System.out.println("Cannot connect to database.");
         }
+    }
 
-        private void toggleMute () {
-            soundEngine.toggleMute();
-            if (soundEngine.isMuted()) {
-                mute.setText("Unmute");
-            } else {
-                mute.setText("Mute");
-            }
+    private void toggleMute() {
+        soundEngine.toggleMute();
+        if (soundEngine.isMuted()) {
+            mute.setText("Unmute");
+        } else {
+            mute.setText("Mute");
         }
+    }
 
 
-        private MenuBar menuBar (Label name){
-            MenuBar menuBar = new MenuBar();
-            Menu menuFile = new Menu("Settings");
-            Menu volume = new Menu("Volume");
-            CustomMenuItem changeVolume = new CustomMenuItem();
-            setupSlider(volume, changeVolume);
-            MenuItem changeName = new MenuItem("Change name");
-            changeName.setOnAction(t -> {
-                Stage stage = new Stage();
-                TextField textField = new TextField();
-                HBox hbox = new HBox(5);
-                hbox.setPadding(new Insets(25));
-                Label label1 = new Label("Name: ");
-                Button button1 = new Button("Submit");
-                button1.setOnAction(e -> setNameLabel(name, stage, textField));
-                textField.setOnKeyPressed(k -> {
-                    if (k.getCode().equals(KeyCode.ENTER)) {
-                        setNameLabel(name, stage, textField);
-                    }
-                });
-                hbox.setMinSize(100, 75);
-                hbox.getChildren().addAll(label1, textField, button1);
-                Scene scene = new Scene(hbox);
-                stage.setScene(scene);
-                stage.show();
+    private MenuBar menuBar(Label name) {
+        MenuBar menuBar = new MenuBar();
+        Menu menuFile = new Menu("Settings");
+        Menu volume = new Menu("Volume");
+        CustomMenuItem changeVolume = new CustomMenuItem();
+        setupSlider(volume, changeVolume);
+        MenuItem changeName = new MenuItem("Change name");
+        changeName.setOnAction(t -> {
+            Stage stage = new Stage();
+
+            HBox hbox = new HBox(5);
+            hbox.setPadding(new Insets(25));
+            Label label1 = new Label("Name: ");
+            Button button1 = new Button("Submit");
+            button1.setOnAction(e -> setNameLabel(name, stage, nameField));
+            nameField.setOnKeyPressed(k -> {
+                if (k.getCode().equals(KeyCode.ENTER)) {
+                    setNameLabel(name, stage, nameField);
+                }
             });
-            menuFile.getItems().addAll(changeName, volume);
-            menuBar.getMenus().addAll(menuFile);
-            return menuBar;
-        }
+            hbox.setMinSize(100, 75);
+            hbox.getChildren().addAll(label1, nameField, button1);
+            Scene scene = new Scene(hbox);
+            stage.setScene(scene);
+            stage.show();
+        });
+        menuFile.getItems().addAll(changeName, volume);
+        menuBar.getMenus().addAll(menuFile);
+        return menuBar;
+    }
 
     private void setupSlider(Menu volume, CustomMenuItem changeVolume) {
         Slider slider = new Slider();
@@ -250,44 +282,44 @@ public class GameEngine extends Application {
         slider.setMajorTickUnit(2);
         volume.getItems().addAll(changeVolume);
         slider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
-                soundEngine.changeVolume((float) slider.getValue()-10);
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                soundEngine.changeVolume((float) slider.getValue() - 10);
             }
         });
         changeVolume.setContent(slider);
     }
 
-    private void setNameLabel (Label name, Stage stage, TextField textField){
-            player.setName(textField.getText());
-            name.setText(player.getName());
-            stage.close();
-        }
+    private void setNameLabel(Label name, Stage stage, TextField textField) {
+        player.setName(textField.getText());
+        name.setText(player.getName());
+        stage.close();
+    }
 
-        private void enemyMovement () {
-            for (AiActor ai : aiList) {
-                if (!ai.isAlive()) {
-                    aiList.remove(ai);
-                    ai = null;
-                    return;
-                }
-                ai.makeMove();
+    private void enemyMovement() {
+        for (AiActor ai : aiList) {
+            if (!ai.isAlive()) {
+                aiList.remove(ai);
+                ai = null;
+                return;
             }
-            refresh();
+            ai.makeMove();
         }
+        refresh();
+    }
 
 
-        private void pickupButtonPressed () {
-            Cell playerCell = player.getCell();
-            Item item = playerCell.getItem();
-            player.pickUpItem(item);
-            playerCell.removeItemFromCell();
-            pickupButton.setVisible(false);
+    private void pickupButtonPressed() {
+        Cell playerCell = player.getCell();
+        Item item = playerCell.getItem();
+        player.pickUpItem(item);
+        playerCell.removeItemFromCell();
+        pickupButton.setVisible(false);
 
-            System.out.println(item.getName());
-            inventoryLabel.setText(inventoryLabel.getText() + item.getName() + " ");
-        }
+        System.out.println(item.getName());
+        inventoryLabel.setText(inventoryLabel.getText() + item.getName() + " ");
+    }
 
-    private void onKeyPressed (KeyEvent keyEvent) {
+    private void onKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
             case UP:
                 map.getPlayer().move(0, -1);
@@ -311,58 +343,58 @@ public class GameEngine extends Application {
                 dbManager.savePlayer(player);
                 dbManager.saveEnemies(aiList, playerId);
                 break;
-            }
         }
+    }
 
-        private void refresh () {
-            if (!player.isAlive()) {
-                map = MapLoader.loadMap(0);
-                player = map.getPlayer();
-                setUpVBox(ui, borderPane, endLabels);
-            }
-            context.setFill(Color.BLACK);
-            context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            boolean setItemButton = false;
+    private void refresh() {
+        if (!player.isAlive()) {
+            map = MapLoader.loadMap(0);
+            player = map.getPlayer();
+            setUpVBox(endLabels);
+        }
+        context.setFill(Color.BLACK);
+        context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        boolean setItemButton = false;
 
-            for (int x = 0; x < map.getWidth(); x++) {
-                for (int y = 0; y < map.getHeight(); y++) {
-                    Cell cell = map.getCell(x, y);
-                    if (cell.getActor() != null) {
-                        Tiles.drawTile(context, cell.getActor(), x, y);
-                        if (cell.hasItem() && cell.getActor() instanceof Player)
-                            setItemButton = true;
-                    } else if (cell.getItem() != null) {
-                        Tiles.drawTile(context, cell.getItem(), x, y);
-                    } else if (cell.getDoor() != null) {
-                        Tiles.drawTile(context, cell.getDoor(), x, y);
-                    } else {
-                        Tiles.drawTile(context, cell, x, y);
-                    }
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.getActor() != null) {
+                    Tiles.drawTile(context, cell.getActor(), x, y);
+                    if (cell.hasItem() && cell.getActor() instanceof Player)
+                        setItemButton = true;
+                } else if (cell.getItem() != null) {
+                    Tiles.drawTile(context, cell.getItem(), x, y);
+                } else if (cell.getDoor() != null) {
+                    Tiles.drawTile(context, cell.getDoor(), x, y);
+                } else {
+                    Tiles.drawTile(context, cell, x, y);
                 }
             }
-            pickupButton.setVisible(false);
-            if (setItemButton)
-                pickupButton.setVisible(true);
-            healthLabel.setText("" + map.getPlayer().getHealth());
         }
-
-        private void onKeyReleased (KeyEvent keyEvent){
-            KeyCombination exitCombinationMac = new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN);
-            KeyCombination exitCombinationWin = new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN);
-            if (exitCombinationMac.match(keyEvent)
-                    || exitCombinationWin.match(keyEvent)
-                    || keyEvent.getCode() == KeyCode.ESCAPE) {
-                exit();
-            }
-        }
-
-        private void exit () {
-            try {
-                stop();
-            } catch (Exception e) {
-                System.exit(1);
-            }
-            System.exit(0);
-        }
-
+        pickupButton.setVisible(false);
+        if (setItemButton)
+            pickupButton.setVisible(true);
+        healthLabel.setText("" + map.getPlayer().getHealth());
     }
+
+    private void onKeyReleased(KeyEvent keyEvent) {
+        KeyCombination exitCombinationMac = new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN);
+        KeyCombination exitCombinationWin = new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN);
+        if (exitCombinationMac.match(keyEvent)
+                || exitCombinationWin.match(keyEvent)
+                || keyEvent.getCode() == KeyCode.ESCAPE) {
+            exit();
+        }
+    }
+
+    private void exit() {
+        try {
+            stop();
+        } catch (Exception e) {
+            System.exit(1);
+        }
+        System.exit(0);
+    }
+
+}
