@@ -29,9 +29,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +64,6 @@ public class GameEngine extends Application {
     private final Button mute = new Button("Mute");
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
-
 
     public static void main(String[] args) {
         launch(args);
@@ -245,7 +246,6 @@ public class GameEngine extends Application {
         }
     }
 
-
     private MenuBar menuBar(Label name) {
         MenuBar menuBar = new MenuBar();
         Menu menuFile = new Menu("Settings");
@@ -272,9 +272,9 @@ public class GameEngine extends Application {
         });
         menuFile.getItems().addAll(changeName, volume);
 
-        Menu menuSave = new Menu("Save");
+        Menu menuSave = new Menu("Saves");
         MenuItem menuItemSave = new MenuItem("Save");
-        menuSave.getItems().addAll(menuItemSave);
+        menuSave.getItems().addAll(menuItemSave, new SeparatorMenuItem()); // TODO: List all saves
         menuItemSave.setOnAction(event -> {
             Stage stage = new Stage();
             HBox hbox = getHBox();
@@ -298,7 +298,17 @@ public class GameEngine extends Application {
             stage.setScene(scene);
             stage.show();
         });
-        menuBar.getMenus().addAll(menuFile, menuSave);
+        Menu menuImport = new Menu("Import");
+        MenuItem menuItemImport = new MenuItem("Import");
+        menuImport.getItems().addAll(menuItemImport);
+        menuItemImport.setOnAction(event -> {
+            Stage importStage = new Stage();
+            FileChooser fileChooser = new FileChooser();
+            File selectedFile = fileChooser.showOpenDialog(importStage);
+            // TODO: Load saves
+        });
+
+        menuBar.getMenus().addAll(menuFile, menuSave, menuImport);
         return menuBar;
     }
 
@@ -341,7 +351,6 @@ public class GameEngine extends Application {
         }
         refresh();
     }
-
 
     private void pickupButtonPressed() {
         Cell playerCell = player.getCell();
