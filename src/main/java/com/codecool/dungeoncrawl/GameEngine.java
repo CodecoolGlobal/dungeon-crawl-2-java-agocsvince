@@ -13,20 +13,28 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.Effect;
 import javafx.scene.effect.Reflection;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,11 +54,14 @@ public class GameEngine extends Application {
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
     GraphicsContext context = canvas.getGraphicsContext2D();
-    Label healthLabel = new Label();
-    Label inventoryLabel = new Label();
-    BorderPane borderPane = new BorderPane();
-    Button pickupButton = new Button("Pick up item (E)");
-    Button mute = new Button("Mute");
+    private final Label healthLabel = new Label();
+    private final Label inventoryLabel = new Label();
+    private final BorderPane borderPane = new BorderPane();
+    private GridPane ui;
+    private List<Label> menuLabels;
+    private final Button pickupButton = new Button("Pick up item (E)");
+    private final Button mute = new Button("Mute");
+    private List<Label> endLabels;
 
     public static void main(String[] args) {
         launch(args);
@@ -59,6 +70,7 @@ public class GameEngine extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
+
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
 
@@ -66,8 +78,7 @@ public class GameEngine extends Application {
         Label inventory = new Label("Inventory: ");
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
-
-        GridPane ui = setUpGridPane(name, inventory);
+        ui = setUpGridPane(name, inventory);
 
         borderPane.setTop(menuBar(name));
 
@@ -75,11 +86,15 @@ public class GameEngine extends Application {
         Label menuLabelStart = newLabel("Start");
         Label menuLabelOptions = newLabel("Options");
         Label menuLabelExit = newLabel("Exit");
-        List<Label> menuLabels = Arrays.asList(menuLabelStart, menuLabelOptions, menuLabelExit);
+        menuLabels = Arrays.asList(menuLabelStart, menuLabelOptions, menuLabelExit);
         //Options
         Label optionsLabelName = newLabel("Name");
         Label optionsLabelBack = newLabel("Back");
         List<Label> optionLabels = Arrays.asList(optionsLabelName, optionsLabelBack);
+        // End screen
+        Label endScreenPlayAgain = newLabel("Play again");
+        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain);
+        endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         //Menu actions
         menuLabelStart.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         menuLabelOptions.setOnMouseClicked(mouseEvent -> {
@@ -296,12 +311,15 @@ public class GameEngine extends Application {
                 dbManager.savePlayer(player);
                 dbManager.saveEnemies(aiList, playerId);
                 break;
+            }
         }
-    }
 
         private void refresh () {
-            if (!player.isAlive())
-                System.exit(0);
+            if (!player.isAlive()) {
+                map = MapLoader.loadMap(0);
+                player = map.getPlayer();
+                setUpVBox(ui, borderPane, endLabels);
+            }
             context.setFill(Color.BLACK);
             context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
             boolean setItemButton = false;
