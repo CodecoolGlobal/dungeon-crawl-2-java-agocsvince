@@ -80,7 +80,7 @@ public class GameEngine extends Application {
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
         ui = setUpGridPane(name, inventory);
-        nameField.setPromptText(player.getName());
+        setUpNameField();
         borderPane.setTop(menuBar(name));
         Scene scene = new Scene(borderPane);
 
@@ -136,7 +136,14 @@ public class GameEngine extends Application {
 
     }
 
+    private void setUpNameField() {
+        nameField.setPromptText(player.getName());
+        nameField.setMaxWidth(200);
+        nameField.setStyle("-fx-background-color: #242222; -fx-text-inner-color: white");
+    }
+
     private void afterStart(Scene scene) {
+        borderPane.setRight(ui);
         scene.setOnKeyPressed(this::onKeyPressed);
         //This is the engines fixed time loop for calculating anything that doesn't correlate with the player actions
         KeyFrame enemyMovementFrame = new KeyFrame(Duration.millis(2000), e -> enemyMovement());
@@ -165,12 +172,12 @@ public class GameEngine extends Application {
         vBox.setSpacing(40);
         vBox.setAlignment(Pos.CENTER);
         vBox.setStyle("-fx-background-color: #242222");
-        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH);
+        vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH + 200);
         vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
         vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
         vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setCenter(vBox);
-        borderPane.setRight(ui);
+
     }
 
     private GridPane setUpGridPane(Label name, Label inventory) {
