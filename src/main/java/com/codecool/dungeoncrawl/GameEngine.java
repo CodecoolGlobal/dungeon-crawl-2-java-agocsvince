@@ -13,28 +13,25 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.Effect;
 import javafx.scene.effect.Reflection;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +56,8 @@ public class GameEngine extends Application {
     private final BorderPane borderPane = new BorderPane();
     private GridPane ui;
     private List<Label> menuLabels;
+    private final Label name = new Label("Player");
+    private final Label inventory = new Label("Inventory: ");
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
     private List<Label> endLabels;
@@ -75,16 +74,26 @@ public class GameEngine extends Application {
         pickupButton.setFocusTraversable(false);
         pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
 
-        Label name = new Label("Player");
-        Label inventory = new Label("Inventory: ");
         mute.setFocusTraversable(false);
         mute.setOnAction(actionEvent -> toggleMute());
         ui = setUpGridPane(name, inventory);
         setUpNameField();
-        borderPane.setTop(menuBar(name));
-        Scene scene = new Scene(borderPane);
 
-        // Menu
+        Scene scene = new Scene(borderPane);
+        setUpLabels(scene);
+
+        setUpVBox(menuLabels);
+
+        primaryStage.setScene(scene);
+        refresh();
+        primaryStage.setTitle("Dungeon Crawl");
+        //This creates the event listener inside the scene for checking key input
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void setUpLabels(Scene scene) {
         Label menuLabelStart = newLabel("Start");
         Label menuLabelOptions = newLabel("Options");
         Label menuLabelExit = newLabel("Exit");
@@ -95,8 +104,13 @@ public class GameEngine extends Application {
         List<Label> optionLabels = Arrays.asList(optionsLabelName, optionsLabelBack);
         // End screen
         Label endScreenPlayAgain = newLabel("Play again");
-        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain);
+        Label endScreenMenu = newLabel("Main menu");
+        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain ,endScreenMenu);
+        //End screen actions
         endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
+        endScreenMenu.setOnMouseClicked(mouseEvent -> {
+            setUpVBox(menuLabels);
+        });
         //Menu actions
         menuLabelStart.setOnMouseClicked(mouseEvent -> {
             afterStart(scene);
@@ -105,15 +119,16 @@ public class GameEngine extends Application {
         menuLabelOptions.setOnMouseClicked(mouseEvent -> {
             //Option actions
             optionsLabelName.setOnMouseClicked(mouseEvent1 -> {
-
-                VBox vBox = new VBox(newLabel("Change name"), nameField);
+                Label backLabel = newLabel("Back");
+                VBox vBox = new VBox(newLabel("Change name"), nameField, backLabel);
                 nameField.setOnKeyPressed(k -> {
                     if (k.getCode().equals(KeyCode.ENTER)) {
                         player.setName(nameField.getText());
                         setUpVBox(optionLabels);
                     }
                 });
-
+                backLabel.setOnMouseClicked(mouseEvent2 ->
+                        setUpVBox(optionLabels));
                 styleVBox(vBox);
             });
             optionsLabelBack.setOnMouseClicked(mouseEvent1 ->
@@ -121,19 +136,6 @@ public class GameEngine extends Application {
             setUpVBox(optionLabels);
         });
         menuLabelExit.setOnMouseClicked(mouseEvent -> System.exit(0));
-
-        setUpVBox(menuLabels);
-
-
-        primaryStage.setScene(scene);
-        refresh();
-        primaryStage.setTitle("Dungeon Crawl");
-        //This creates the event listener inside the scene for checking key input
-
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
     }
 
     private void setUpNameField() {
@@ -144,6 +146,7 @@ public class GameEngine extends Application {
 
     private void afterStart(Scene scene) {
         borderPane.setRight(ui);
+        borderPane.setTop(menuBar(name));
         scene.setOnKeyPressed(this::onKeyPressed);
         //This is the engines fixed time loop for calculating anything that doesn't correlate with the player actions
         KeyFrame enemyMovementFrame = new KeyFrame(Duration.millis(2000), e -> enemyMovement());
@@ -247,31 +250,63 @@ public class GameEngine extends Application {
         MenuBar menuBar = new MenuBar();
         Menu menuFile = new Menu("Settings");
         Menu volume = new Menu("Volume");
-        CustomMenuItem changeVolume = new CustomMenuItem();
-        setupSlider(volume, changeVolume);
         MenuItem changeName = new MenuItem("Change name");
+        CustomMenuItem changeVolume = new CustomMenuItem();
+
+        setupSlider(volume, changeVolume);
         changeName.setOnAction(t -> {
             Stage stage = new Stage();
-
-            HBox hbox = new HBox(5);
-            hbox.setPadding(new Insets(25));
-            Label label1 = new Label("Name: ");
-            Button button1 = new Button("Submit");
-            button1.setOnAction(e -> setNameLabel(name, stage, nameField));
+            HBox hbox = getHBox();
+            Button submit = new Button("Submit");
+            submit.setOnAction(e -> setNameLabel(name, stage, nameField));
             nameField.setOnKeyPressed(k -> {
                 if (k.getCode().equals(KeyCode.ENTER)) {
                     setNameLabel(name, stage, nameField);
                 }
             });
-            hbox.setMinSize(100, 75);
-            hbox.getChildren().addAll(label1, nameField, button1);
+
+            hbox.getChildren().addAll(newLabel("Name: "), nameField, submit);
             Scene scene = new Scene(hbox);
             stage.setScene(scene);
             stage.show();
         });
         menuFile.getItems().addAll(changeName, volume);
-        menuBar.getMenus().addAll(menuFile);
+
+        Menu menuSave = new Menu("Save");
+        MenuItem menuItemSave = new MenuItem("Save");
+        menuSave.getItems().addAll(menuItemSave);
+        menuItemSave.setOnAction(event -> {
+            Stage stage = new Stage();
+            HBox hbox = getHBox();
+            Button save = new Button("Save");
+            Button cancel = new Button("Cancel");
+            save.setOnAction(e -> {
+                //TODO: Save
+            });
+            cancel.setOnAction(e -> {
+                stage.close();
+            });
+            TextField saveField = new TextField();
+            saveField.setOnKeyPressed(k -> {
+                if (k.getCode().equals(KeyCode.ENTER)) {
+                    //TODO: Save
+                }
+            });
+
+            hbox.getChildren().addAll(new Label("File name: "), saveField, save, cancel);
+            Scene scene = new Scene(hbox);
+            stage.setScene(scene);
+            stage.show();
+        });
+        menuBar.getMenus().addAll(menuFile, menuSave);
         return menuBar;
+    }
+
+    private HBox getHBox() {
+        HBox hbox = new HBox(5);
+        hbox.setPadding(new Insets(25));
+        hbox.setMinSize(100, 75);
+        return hbox;
     }
 
     private void setupSlider(Menu volume, CustomMenuItem changeVolume) {
@@ -350,7 +385,10 @@ public class GameEngine extends Application {
         if (!player.isAlive()) {
             map = MapLoader.loadMap(0);
             player = map.getPlayer();
+            borderPane.setRight(null);
+            borderPane.setTop(null);
             setUpVBox(endLabels);
+            soundEngine.toggleMute();
         }
         context.setFill(Color.BLACK);
         context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
