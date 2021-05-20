@@ -358,9 +358,10 @@ public class GameEngine extends Application {
 
     private void saveToJson(String filename) {
         try {
-            List data = Arrays.asList(player.getUuid(), player.getName(), player.getHealth(),
+            List data = Arrays.asList(player.getUuid(), player.getName(), player.getHealth(), player.getDamage(),
                     Arrays.asList(player.getCell().getX(), player.getCell().getY()),
-                    player.getInventory().stream().peek(Item::getName).collect(Collectors.toList()));
+                    player.getInventory().stream().peek(Item::getName).collect(Collectors.toList()),
+                    aiList);
             JSON.writeToJsonFile(filename, data);
         } catch (IOException e) {
             e.printStackTrace();
