@@ -95,7 +95,6 @@ public class MapLoader {
             }
         }
         activeMap = map;
-        map.getMapObjectsToArray(width, height);
         return activeMap;
     }
 
