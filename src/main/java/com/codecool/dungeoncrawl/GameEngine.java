@@ -1,6 +1,7 @@
 package com.codecool.dungeoncrawl;
 
 import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
+import com.codecool.dungeoncrawl.json.JSON;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.GameMap;
 import com.codecool.dungeoncrawl.logic.MapLoader;
@@ -33,13 +34,17 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 public class GameEngine extends Application {
@@ -281,16 +286,16 @@ public class GameEngine extends Application {
             HBox hbox = getHBox();
             Button save = new Button("Save");
             Button cancel = new Button("Cancel");
+            TextField saveField = new TextField();
             save.setOnAction(e -> {
-                //TODO: Save
+                //TODO: Save into SQL
             });
             cancel.setOnAction(e -> {
                 stage.close();
             });
-            TextField saveField = new TextField();
             saveField.setOnKeyPressed(k -> {
                 if (k.getCode().equals(KeyCode.ENTER)) {
-                    //TODO: Save
+                    //TODO: Save into SQL
                 }
             });
 
@@ -306,11 +311,56 @@ public class GameEngine extends Application {
             Stage importStage = new Stage();
             FileChooser fileChooser = new FileChooser();
             File selectedFile = fileChooser.showOpenDialog(importStage);
-            // TODO: Load saves
+            try {
+                JSONObject data = (JSONObject) JSON.readJson(selectedFile.getName());
+                // TODO: Load JSON data
+                //System.out.println(data.get("player"));
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            }
+        });
+        Menu menuExport = new Menu("Export");
+        MenuItem menuItemExport = new MenuItem("Export");
+        menuExport.getItems().addAll(menuItemExport);
+        menuItemExport.setOnAction(event -> {
+            Stage stage = new Stage();
+            HBox hbox = getHBox();
+            Button save = new Button("Save");
+            Button cancel = new Button("Cancel");
+            TextField saveField = new TextField();
+            save.setOnAction(e -> {
+                saveToJson(saveField.getText());
+                stage.close();
+            });
+            cancel.setOnAction(e -> {
+                stage.close();
+            });
+            saveField.setOnKeyPressed(k -> {
+                if (k.getCode().equals(KeyCode.ENTER)) {
+                    saveToJson(saveField.getText());
+                    stage.close();
+                }
+            });
+
+            hbox.getChildren().addAll(new Label("File name: "), saveField, save, cancel);
+            Scene scene = new Scene(hbox);
+            stage.setScene(scene);
+            stage.show();
         });
 
-        menuBar.getMenus().addAll(menuFile, menuSave, menuImport);
+        menuBar.getMenus().addAll(menuFile, menuSave, menuImport, menuExport);
         return menuBar;
+    }
+
+    private void saveToJson(String filename) {
+        try {
+            List data = Arrays.asList(player.getUuid(), player.getName(), player.getHealth(),
+                    Arrays.asList(player.getCell().getX(), player.getCell().getY()),
+                    player.getInventory().stream().peek(Item::getName).collect(Collectors.toList()));
+            JSON.writeToJsonFile(filename, data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private HBox getHBox() {

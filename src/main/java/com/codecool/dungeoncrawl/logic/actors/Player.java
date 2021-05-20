@@ -15,6 +15,11 @@ import java.util.UUID;
 
 public class Player extends Actor {
     private UUID uuid = UUID.randomUUID();
+
+    public Set<Item> getInventory() {
+        return inventory;
+    }
+
     private final Set<Item> inventory = new HashSet<>();
     private String name;
     private final String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
