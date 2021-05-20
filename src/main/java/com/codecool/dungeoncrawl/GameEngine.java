@@ -1,12 +1,6 @@
 package com.codecool.dungeoncrawl;
 
-import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
-import com.codecool.dungeoncrawl.logic.Cell;
-import com.codecool.dungeoncrawl.logic.GameMap;
-import com.codecool.dungeoncrawl.logic.MapLoader;
-import com.codecool.dungeoncrawl.logic.actors.Player;
-import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
-import com.codecool.dungeoncrawl.logic.items.Item;
+
 import com.codecool.dungeoncrawl.model.GameState;
 import com.codecool.dungeoncrawl.model.PlayerModel;
 import javafx.animation.Animation;
@@ -15,6 +9,7 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -22,10 +17,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.effect.Reflection;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -45,6 +38,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
+import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.GameMap;
+import com.codecool.dungeoncrawl.logic.MapLoader;
+import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
+import com.codecool.dungeoncrawl.logic.items.Item;
+
 
 public class GameEngine extends Application {
     public static ArrayList<AiActor> aiList = new ArrayList<AiActor>();
@@ -52,41 +53,47 @@ public class GameEngine extends Application {
 
 
     public static SoundEngine soundEngine = new SoundEngine();
-    GameMap map = MapLoader.loadMap(0);
-    Player player = map.getPlayer();
+    static GameMap map = MapLoader.loadMap(0);
+    static Player player = map.getPlayer();
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
     GraphicsContext context = canvas.getGraphicsContext2D();
     private final Label healthLabel = new Label();
     private final Label inventoryLabel = new Label();
-    private final BorderPane borderPane = new BorderPane();
+    private BorderPane borderPane = new BorderPane();
     private GridPane ui;
     private List<Label> menuLabels;
     private final Label name = new Label("Player");
-    private final Label inventory = new Label("Inventory: ");
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
+    private static final Button[][] inventoryButtons = new Button[4][6];
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
+    private static Button headButton;
+    private static Button torsoButton;
+    private static Button lHandButton;
+    private static Button rHandButton;
 
     public static void main(String[] args) {
         launch(args);
     }
 
+    public static Player getPlayer() {
+        return player;
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
-        pickupButton.setFocusTraversable(false);
-        pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
-
-        mute.setFocusTraversable(false);
-        mute.setOnAction(actionEvent -> toggleMute());
-        ui = setUpGridPane(name, inventory);
-        setUpNameField();
 
         Scene scene = new Scene(borderPane);
         setUpLabels(scene);
+
+        torsoButton = makeCharacterButton();
+        headButton = makeCharacterButton();
+        lHandButton = makeCharacterButton();
+        rHandButton = makeCharacterButton();
 
         setUpVBox(menuLabels);
 
@@ -94,8 +101,6 @@ public class GameEngine extends Application {
         refresh();
         primaryStage.setTitle("Dungeon Crawl");
         //This creates the event listener inside the scene for checking key input
-
-        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -111,7 +116,7 @@ public class GameEngine extends Application {
         // End screen
         Label endScreenPlayAgain = newLabel("Play again");
         Label endScreenMenu = newLabel("Main menu");
-        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain ,endScreenMenu);
+        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain, endScreenMenu);
         //End screen actions
         endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         endScreenMenu.setOnMouseClicked(mouseEvent -> {
@@ -150,9 +155,127 @@ public class GameEngine extends Application {
         nameField.setStyle("-fx-background-color: #242222; -fx-text-inner-color: white");
     }
 
+    public static void updateInventory() {
+        soundEngine.play("pickup");
+        for (int row = 0; row < inventoryButtons.length; row++) {
+            for (int col = 0; col < inventoryButtons[row].length; col++) {
+                Button button = inventoryButtons[row][col];
+                try {
+                    Item item = player.getInventory().get((row*6) + col);
+
+                    if (item != null) {
+                        button.setGraphic(Tiles.getImageFor(item.getTileName()));
+                        button.setDisable(false);
+                    }
+                } catch (Exception e) {
+                    //This happens when we try to update a button for which there is no item
+                    button.setGraphic(Tiles.getImageFor("empty"));
+                    button.setDisable(true);
+                }
+            }
+        }
+        updateCharacterUI();
+    }
+
+    private static void updateCharacterUI() {
+        System.out.println(player.getlHandSlot());
+        System.out.println(player.getlHandSlot() != null);
+        if (player.getHeadSlot() != null) {
+            System.out.println("Head slot not NULL");
+            headButton.setGraphic(Tiles.getImageFor(player.getHeadSlot().getTileName()));
+            headButton.setDisable(false);
+        } else {
+            headButton.setGraphic(Tiles.getImageFor("empty"));
+            headButton.setDisable(true);
+        }
+        if (player.getlHandSlot() != null) {
+            lHandButton.setGraphic(Tiles.getImageFor(player.getlHandSlot().getTileName()));
+            lHandButton.setDisable(false);
+        } else {
+            lHandButton.setGraphic(Tiles.getImageFor("empty"));
+            lHandButton.setDisable(true);
+        }
+        if (player.getTorsoSlot() != null) {
+            System.out.println("Torso slot not NULL");
+            torsoButton.setGraphic(Tiles.getImageFor(player.getTorsoSlot().getTileName()));
+            torsoButton.setDisable(false);
+        } else {
+            torsoButton.setGraphic(Tiles.getImageFor("empty"));
+            torsoButton.setDisable(true);
+        }
+        if (player.getrHandSlot() != null) {
+            rHandButton.setGraphic(Tiles.getImageFor(player.getrHandSlot().getTileName()));
+            rHandButton.setDisable(false);
+        } else {
+            rHandButton.setGraphic(Tiles.getImageFor("empty"));
+            rHandButton.setDisable(true);
+        }
+    }
+
+    private GridPane setUpInventoryPanel() {
+        GridPane uiBottom = new GridPane();
+        for (int row = 0; row < inventoryButtons.length; row++) {
+            for (int col = 0; col < inventoryButtons[row].length; col++) {
+                Button btn = new Button();
+                int btnCol = col;
+                int btnRow = row;
+                btn.setOnAction(e -> player.getInventory().get(btnRow + btnCol).use());
+                btn.setOnMouseReleased(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        if (mouseEvent.getButton() == MouseButton.SECONDARY) {
+                            player.dropItem(player.getInventory().get(btnRow + btnCol));
+                            System.out.println("Dropped");
+                            updateInventory();
+                        }
+                    }
+                });
+                ImageView img = Tiles.getImageFor("empty");
+                btn.setGraphic(img);
+                btn.setDisable(true);
+                btn.setMinSize(16, 16);
+                btn.setPrefSize(28, 28);
+                btn.setFocusTraversable(false);
+                uiBottom.add(btn, col, row);
+                inventoryButtons[row][col] = btn;
+            }
+        }
+        uiBottom.setHgap(2);
+        uiBottom.setVgap(2);
+        uiBottom.setPrefWidth(200);
+        uiBottom.setPadding(new Insets(10));
+        return uiBottom;
+    }
+
+
+    private static Button makeCharacterButton() {
+        ImageView img = Tiles.getImageFor("empty");
+        Button btn = new Button();
+        btn.setFocusTraversable(false);
+        btn.setMinSize(28, 28);
+        btn.setPrefSize(28, 28);
+        btn.setGraphic(img);
+        btn.setDisable(true);
+        return btn;
+    }
+
     private void afterStart(Scene scene) {
-        borderPane.setRight(ui);
         borderPane.setTop(menuBar(name));
+
+        GridPane holder = new GridPane();
+        GridPane uiTop = setUpGridPane();
+        GridPane uiCharacter = setUpCharacterPane();
+        GridPane uiInventory = setUpInventoryPanel();
+
+        BorderPane gameBorderPane = borderPane;
+        gameBorderPane.setTop(menuBar(name));
+
+        holder.add(uiTop, 0, 0);
+        holder.add(uiCharacter, 0, 1);
+        holder.add(uiInventory, 0, 2);
+        gameBorderPane.setCenter(canvas);
+        gameBorderPane.setRight(holder);
+
         scene.setOnKeyPressed(this::onKeyPressed);
         //This is the engines fixed time loop for calculating anything that doesn't correlate with the player actions
         KeyFrame enemyMovementFrame = new KeyFrame(Duration.millis(2000), e -> enemyMovement());
@@ -161,7 +284,6 @@ public class GameEngine extends Application {
         timeline.play();
 
         //Keyboard shortcuts
-        //Pick up with 'E'
         scene.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
             if (e.getCode().equals(KeyCode.E)) {
                 pickupButtonPressed();
@@ -174,7 +296,8 @@ public class GameEngine extends Application {
             }
         });
         soundEngine.start();
-        borderPane.setCenter(canvas);
+        gameBorderPane.setCenter(canvas);
+        borderPane = gameBorderPane;
     }
 
     private void styleVBox(VBox vBox) {
@@ -186,19 +309,38 @@ public class GameEngine extends Application {
         vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
         vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setCenter(vBox);
-
     }
 
-    private GridPane setUpGridPane(Label name, Label inventory) {
+    private GridPane setUpCharacterPane() {
+        GridPane uiCharacterPane = new GridPane();
+
+        headButton.setOnAction(e -> player.unequip(player.getHeadSlot()));
+        torsoButton.setOnAction(e -> player.unequip(player.getTorsoSlot()));
+        lHandButton.setOnAction(e -> player.unequip(player.getlHandSlot()));
+        rHandButton.setOnAction(e -> player.unequip(player.getrHandSlot()));
+
+        uiCharacterPane.add(headButton, 1, 0);
+        uiCharacterPane.add(lHandButton, 0, 1);
+        uiCharacterPane.add(torsoButton, 1, 1);
+        uiCharacterPane.add(rHandButton, 2, 1);
+
+        uiCharacterPane.setHgap(20);
+        uiCharacterPane.setVgap(20);
+        uiCharacterPane.setPrefWidth(200);
+        uiCharacterPane.setPadding(new Insets(35));
+        return uiCharacterPane;
+    }
+
+    private GridPane setUpGridPane() {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10));
-        ui.add(name, 0, 0);
+        mute.setFocusTraversable(false);
+        pickupButton.setFocusTraversable(false);
         ui.add(mute, 1, 0);
         ui.add(new Label("Health: "), 0, 1);
         ui.add(healthLabel, 1, 1);
         ui.add(pickupButton, 0, 2);
-        ui.add(inventory, 0, 3);
         ui.add(inventoryLabel, 0, 4);
         ui.setHgap(10);
         ui.setVgap(10);
@@ -208,7 +350,7 @@ public class GameEngine extends Application {
     private Reflection setUpReflection() {
         Reflection reflection = new Reflection();
         reflection.setTopOffset(0);
-        reflection.setTopOpacity(0.75);
+        reflection.setTopOpacity(0.45);
         reflection.setBottomOpacity(0.10);
         reflection.setFraction(0.7);
         return reflection;
@@ -352,7 +494,7 @@ public class GameEngine extends Application {
                 ai = null;
                 return;
             }
-            ai.makeMove();
+            ai.update();
         }
         refresh();
     }
@@ -364,8 +506,7 @@ public class GameEngine extends Application {
         playerCell.removeItemFromCell();
         pickupButton.setVisible(false);
 
-        System.out.println(item.getName());
-        inventoryLabel.setText(inventoryLabel.getText() + item.getName() + " ");
+        //Add to inventory graphically
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
