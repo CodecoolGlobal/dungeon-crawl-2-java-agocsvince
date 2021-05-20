@@ -26,29 +26,24 @@ public class GameMap {
                 if (cell.getActor() != null) {
                     if (cell.getActor().getClass().getSimpleName().equals("Zombie")) {
                         allElementsInStringArrayList.add(cell.getActor().getTileName());
-//                        System.out.println(cell.getActor().getTileName());
                     } else {
                         allElementsInStringArrayList.add(cell.getActor().getClass().getSimpleName());
-//                        System.out.println(cell.getActor().getClass().getSimpleName());
                     }
                 } else if (cell.getItem() != null) {
                     allElementsInStringArrayList.add(cell.getItem().getClass().getSimpleName());
-//                    System.out.println(cell.getItem().getClass().getSimpleName());
                 } else if (cell.getDoor() != null) {
                     allElementsInStringArrayList.add(cell.getDoor().getTileName());
-//                    System.out.println(cell.getDoor().getTileName());
                 } else if (cell.getType() != null) {
                     allElementsInStringArrayList.add(cell.getTileName());
-//                    System.out.println(cell.getTileName());
                 }
             }
         }
-        replaceTileNameToAChar(allElementsInStringArrayList);
+        replaceTileNameToALetter(allElementsInStringArrayList);
         convertMapArrayListToMultiDimArray(allElementsInStringArrayList, width, height);
-        }
+    }
 
-    private void replaceTileNameToAChar(ArrayList<String> allElementsInStringArrayList) {
-        for (int i = 0; i < allElementsInStringArrayList.size() ; i++) {
+    private void replaceTileNameToALetter(ArrayList<String> allElementsInStringArrayList) {
+        for (int i = 0; i < allElementsInStringArrayList.size(); i++) {
             switch (allElementsInStringArrayList.get(i)) {
                 case "empty":
                     allElementsInStringArrayList.set(i, " ");
@@ -89,41 +84,26 @@ public class GameMap {
                 case "zombie":
                     allElementsInStringArrayList.set(i, "z");   // TODO: add awakezombie to Maploader, than change here to "Z"
                     break;
-                }
             }
-//        char[] allElementsInCharList = new char[allElementsInStringArrayList.size()];
-//        for (int i = 0; i < allElementsInStringArrayList.size(); i++) {
-//            allElementsInCharList[i] = allElementsInStringArrayList.get(i).toChar;
-
-//        }
-//        for(String item : allElementsInStringArrayList){
-//            item.toCharArray();
-//        }
+        }
     }
 
     private void convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
         char[] allElementsInCharList = convertStringArrayListToCharArray(allElementsInStringArrayList);
-
-
-        char[][] StringArray = new char[width][height];
+        char[][] StringArray = new char[height][width];
         int c = 0;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-//            String[] row = new String[width];
-                StringArray[x][y] = allElementsInCharList[c];
+                StringArray[y][x] = allElementsInCharList[c];
                 c++;
             }
-//                    for (String s : allElementsInStringArrayList) {
-
         }
-        System.out.println(allElementsInCharList);
-        System.out.println(Arrays.deepToString(StringArray));
     }
 
     private char[] convertStringArrayListToCharArray(ArrayList<String> allElementsInStringArrayList) {
         char[] allElementsInCharList = new char[allElementsInStringArrayList.size()];
         for (int i = 0; i < allElementsInStringArrayList.size(); i++) {
-            allElementsInCharList[i] = allElementsInStringArrayList.toString().charAt(i);
+            allElementsInCharList[i] = allElementsInStringArrayList.get(i).charAt(0);
         }
         return allElementsInCharList;
     }
@@ -139,42 +119,37 @@ public class GameMap {
                 cells[x][y] = new Cell(this, x, y, defaultCellType);
             }
         }
-
     }
 
-
-
-
-
-        public Cell getCell ( int x, int y){
-            try {
-                return cells[x][y];
-            } catch (Exception exception) {
-                return null;
-            }
-        }
-
-        public void setPlayer (Player player){
-            this.player = player;
-        }
-
-        public Player getPlayer () {
-            return player;
-        }
-
-        public int getWidth () {
-            return width;
-        }
-
-        public int getHeight () {
-            return height;
-        }
-
-        public String getMapString () {
-            return mapString;
-        }
-
-        public void setMapString (String mapString){
-            this.mapString = mapString;
+    public Cell getCell(int x, int y) {
+        try {
+            return cells[x][y];
+        } catch (Exception exception) {
+            return null;
         }
     }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public String getMapString() {
+        return mapString;
+    }
+
+    public void setMapString(String mapString) {
+        this.mapString = mapString;
+    }
+}
