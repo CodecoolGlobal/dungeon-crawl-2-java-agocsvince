@@ -43,13 +43,12 @@ public class GameMap {
                 }
             }
         }
-        replaceTilenameToALetter(allElementsInStringArrayList);
+        replaceTileNameToAChar(allElementsInStringArrayList);
         convertMapArrayListToMultiDimArray(allElementsInStringArrayList, width, height);
         }
 
-    private void replaceTilenameToALetter(ArrayList<String> allElementsInStringArrayList) {
+    private void replaceTileNameToAChar(ArrayList<String> allElementsInStringArrayList) {
         for (int i = 0; i < allElementsInStringArrayList.size() ; i++) {
-//            if (e) {
             switch (allElementsInStringArrayList.get(i)) {
                 case "empty":
                     allElementsInStringArrayList.set(i, " ");
@@ -92,6 +91,41 @@ public class GameMap {
                     break;
                 }
             }
+//        char[] allElementsInCharList = new char[allElementsInStringArrayList.size()];
+//        for (int i = 0; i < allElementsInStringArrayList.size(); i++) {
+//            allElementsInCharList[i] = allElementsInStringArrayList.get(i).toChar;
+
+//        }
+//        for(String item : allElementsInStringArrayList){
+//            item.toCharArray();
+//        }
+    }
+
+    private void convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
+        char[] allElementsInCharList = convertStringArrayListToCharArray(allElementsInStringArrayList);
+
+
+        char[][] StringArray = new char[width][height];
+        int c = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+//            String[] row = new String[width];
+                StringArray[x][y] = allElementsInCharList[c];
+                c++;
+            }
+//                    for (String s : allElementsInStringArrayList) {
+
+        }
+        System.out.println(allElementsInCharList);
+        System.out.println(Arrays.deepToString(StringArray));
+    }
+
+    private char[] convertStringArrayListToCharArray(ArrayList<String> allElementsInStringArrayList) {
+        char[] allElementsInCharList = new char[allElementsInStringArrayList.size()];
+        for (int i = 0; i < allElementsInStringArrayList.size(); i++) {
+            allElementsInCharList[i] = allElementsInStringArrayList.toString().charAt(i);
+        }
+        return allElementsInCharList;
     }
 
     private Player player;
@@ -107,20 +141,7 @@ public class GameMap {
         }
 
     }
-    private void convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
-        String[][] StringArray = new String[width][height];
-        int c = 0;
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-//            String[] row = new String[width];
-                StringArray[x][y] = allElementsInStringArrayList.get(c);
-                c++;
-            }
-//                    for (String s : allElementsInStringArrayList) {
 
-        }
-        System.out.println(Arrays.deepToString(StringArray));
-    }
 
 
 
