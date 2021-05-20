@@ -7,8 +7,6 @@ public abstract class Equipable extends Item {
         super(item, cell);
     }
 
-    protected EQUIP_POSITION equipSlot = EQUIP_POSITION.NONE;
-
     public enum EQUIP_POSITION{
         HAND,
         HEAD,

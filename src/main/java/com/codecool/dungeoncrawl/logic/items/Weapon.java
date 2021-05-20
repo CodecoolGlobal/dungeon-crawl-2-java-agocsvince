@@ -36,6 +36,7 @@ public class Weapon extends Equipable {
 
     public Weapon(ITEM_NAME item, Cell cell) {
         super(item, cell);
+        System.out.println("Setting equip slot to HAND");
         equipSlot = EQUIP_POSITION.HAND;
     }
 }

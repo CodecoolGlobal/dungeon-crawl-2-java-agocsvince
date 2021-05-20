@@ -153,6 +153,7 @@ public class Player extends Actor {
     }
 
     public void equip(Item item) {
+        System.out.println(item.getEquipSlot());
         if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HEAD) {
             if (headSlot == null) {
                 equipArmor((Armor) item, Equipable.EQUIP_POSITION.HEAD);
@@ -174,8 +175,10 @@ public class Player extends Actor {
         } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HAND) {
             if (lHandSlot == null) {
                 lHandSlot = equipWeapon((Weapon) item);
+                System.out.println("lHandSlot: "+lHandSlot);
             } else if (rHandSlot == null) {
                 rHandSlot = equipWeapon((Weapon) item);
+                System.out.println("rHandSlot: "+rHandSlot);
             } else {
                 if (inventory.size() < maxInventorySize) {
                     inventory.add(rHandSlot);

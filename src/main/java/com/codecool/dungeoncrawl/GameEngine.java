@@ -65,9 +65,9 @@ public class GameEngine extends Application {
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
     private static Button headButton;
-    private static  Button torsoButton;
-    private static  Button lHandButton;
-    private static  Button rHandButton;
+    private static Button torsoButton;
+    private static Button lHandButton;
+    private static Button rHandButton;
 
     public static void main(String[] args) {
         launch(args);
@@ -172,6 +172,7 @@ public class GameEngine extends Application {
 
     private static void updateCharacterUI(){
         System.out.println("Updating");
+        System.out.println(player.getlHandSlot());
         System.out.println(player.getlHandSlot() != null);
         if (player.getHeadSlot() != null){
             headButton.setGraphic(Tiles.getImageFor(player.getHeadSlot().getTileName()));
@@ -219,7 +220,6 @@ public class GameEngine extends Application {
                 btn.setFocusTraversable(false);
                 uiBottom.add(btn, col, row);
                 inventoryButtons[row][col] = btn;
-
             }
         }
         uiBottom.setHgap(2);
@@ -295,8 +295,6 @@ public class GameEngine extends Application {
 
     private GridPane setUpCharacterPane() {
         GridPane uiCharacterPane = new GridPane();
-
-
 
         headButton.setOnAction(e -> player.unequip(player.getHeadSlot()));
         torsoButton.setOnAction(e -> player.unequip(player.getTorsoSlot()));

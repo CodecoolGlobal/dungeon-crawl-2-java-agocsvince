@@ -52,9 +52,10 @@ public class Item implements Drawable {
         this.itemType = item;
         this.cell = cell;
         cell.setItem(this);
+        equipSlot = Equipable.EQUIP_POSITION.NONE;
     }
 
-    protected Equipable.EQUIP_POSITION equipSlot = Equipable.EQUIP_POSITION.NONE;
+    protected Equipable.EQUIP_POSITION equipSlot;
     protected final ITEM_NAME itemType;
     private Cell cell;
 
