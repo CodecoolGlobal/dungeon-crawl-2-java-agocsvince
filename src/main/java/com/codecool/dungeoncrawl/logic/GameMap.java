@@ -1,6 +1,13 @@
 package com.codecool.dungeoncrawl.logic;
 
+import com.codecool.dungeoncrawl.GameEngine;
 import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.actors.ai.Golem;
+import com.codecool.dungeoncrawl.logic.actors.ai.Skeleton;
+import com.codecool.dungeoncrawl.logic.actors.ai.Wraith;
+import com.codecool.dungeoncrawl.logic.actors.ai.Zombie;
+import com.codecool.dungeoncrawl.logic.items.Key;
+import com.codecool.dungeoncrawl.logic.items.Sword;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,21 +17,6 @@ public class GameMap {
     private int height;
     private Cell[][] cells;
     private String mapString = "#############";
-
-
-    private Player player;
-
-    public GameMap(int width, int height, CellType defaultCellType) {
-        this.width = width;
-        this.height = height;
-        cells = new Cell[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                cells[x][y] = new Cell(this, x, y, defaultCellType);
-            }
-        }
-
-    }
 
 
     public void getMapObjectsToArray(int width, int height) {
@@ -51,9 +43,70 @@ public class GameMap {
                 }
             }
         }
+        replaceTilenameToALetter(allElementsInStringArrayList);
         convertMapArrayListToMultiDimArray(allElementsInStringArrayList, width, height);
+        }
+
+    private void replaceTilenameToALetter(ArrayList<String> allElementsInStringArrayList) {
+        for (int i = 0; i < allElementsInStringArrayList.size() ; i++) {
+//            if (e) {
+            switch (allElementsInStringArrayList.get(i)) {
+                case "empty":
+                    allElementsInStringArrayList.set(i, " ");
+                    break;
+                case "wall":
+                    allElementsInStringArrayList.set(i, "#");
+                    break;
+                case "floor":
+                    allElementsInStringArrayList.set(i, ".");
+                    break;
+                case "Skeleton":
+                    allElementsInStringArrayList.set(i, "s");
+                    break;
+                case "Golem":
+                    allElementsInStringArrayList.set(i, "g");
+                    break;
+                case "Player":
+                    allElementsInStringArrayList.set(i, "@");
+                    break;
+                case "Key":
+                    allElementsInStringArrayList.set(i, "k");
+                    break;
+                case "Sword":
+                    allElementsInStringArrayList.set(i, "w");
+                    break;
+                case "closedDoor":
+                    allElementsInStringArrayList.set(i, "d");
+                    break;
+                case "openedDoor":
+                    allElementsInStringArrayList.set(i, ".");   // TODO: add opendoor to Maploader, than change here to "D"
+                    break;
+                case "Wraith":
+                    allElementsInStringArrayList.set(i, "W");
+                    break;
+                case "sleepingZombie":
+                    allElementsInStringArrayList.set(i, "z");
+                    break;
+                case "zombie":
+                    allElementsInStringArrayList.set(i, "z");   // TODO: add awakezombie to Maploader, than change here to "Z"
+                    break;
+                }
+            }
     }
 
+    private Player player;
+
+    public GameMap(int width, int height, CellType defaultCellType) {
+        this.width = width;
+        this.height = height;
+        cells = new Cell[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                cells[x][y] = new Cell(this, x, y, defaultCellType);
+            }
+        }
+
+    }
     private void convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
         String[][] StringArray = new String[width][height];
         int c = 0;
@@ -68,6 +121,9 @@ public class GameMap {
         }
         System.out.println(Arrays.deepToString(StringArray));
     }
+
+
+
 
         public Cell getCell ( int x, int y){
             try {
