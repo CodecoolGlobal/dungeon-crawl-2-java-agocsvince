@@ -103,38 +103,72 @@ public class Player extends Actor {
         if (cell.getItem() == null) {
             cell.setItem(item);
             inventory.remove(item);
-            System.out.println(inventory);
             GameEngine.soundEngine.play("pickup");
         }
     }
 
     public void interact(Item item) {
+        System.out.println(item.getClass().getSimpleName());
         if (item instanceof Armor) {
             equip(item);
+            System.out.println("Equipping armor");
         } else if (item instanceof Weapon) {
+            System.out.println("Equipping weapon");
             equip(item);
         } else if (item instanceof HealItem) {
             heal(item.getStats().get("Healing"));
+        }
+        GameEngine.updateInventory();
+    }
+
+    public Item getHeadSlot() {
+        return headSlot;
+    }
+
+    public Item getlHandSlot() {
+        return lHandSlot;
+    }
+
+    public Item getrHandSlot() {
+        return rHandSlot;
+    }
+
+    public Item getTorsoSlot() {
+        return torsoSlot;
+    }
+
+    public int getArmor() {
+        return armor;
+    }
+
+    public void unequip(Item item) {
+        if (inventory.size() < maxInventorySize) {
+            switch (item.getEquipSlot()) {
+                case TORSO:
+                    removeArmor(Equipable.EQUIP_POSITION.TORSO);
+                case HEAD:
+                    removeArmor(Equipable.EQUIP_POSITION.HEAD);
+            }
         }
     }
 
     public void equip(Item item) {
         if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HEAD) {
             if (headSlot == null) {
-                equipArmor((Armor) item);
+                equipArmor((Armor) item, Equipable.EQUIP_POSITION.HEAD);
             } else {
                 if (inventory.size() < maxInventorySize) {
-                    removeArmor();
-                    equipArmor((Armor) item);
+                    removeArmor(Equipable.EQUIP_POSITION.HEAD);
+                    equipArmor((Armor) item, Equipable.EQUIP_POSITION.HEAD);
                 }
             }
         } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.TORSO) {
             if (torsoSlot == null) {
-                equipArmor((Armor) item);
+                equipArmor((Armor) item, Equipable.EQUIP_POSITION.TORSO);
             } else {
                 if (inventory.size() < maxInventorySize) {
-                    removeArmor();
-                    equipArmor((Armor) item);
+                    removeArmor(Equipable.EQUIP_POSITION.TORSO);
+                    equipArmor((Armor) item, Equipable.EQUIP_POSITION.TORSO);
                 }
             }
         } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HAND) {
@@ -166,15 +200,27 @@ public class Player extends Actor {
         return null;
     }
 
-    private void equipArmor(Armor armorItem) {
-        headSlot = armorItem;
+    private void equipArmor(Armor armorItem, Equipable.EQUIP_POSITION position) {
+
         inventory.remove(armorItem);
         armor += armorItem.getStats().get("Armour");
+        switch (position) {
+            case TORSO:
+                torsoSlot = armorItem;
+            case HEAD:
+                headSlot = armorItem;
+        }
     }
 
-    private void removeArmor() {
-        inventory.add(headSlot);
-        armor -= headSlot.getStats().get("Armour");
+    private void removeArmor(Equipable.EQUIP_POSITION position) {
+        switch (position) {
+            case HEAD:
+                inventory.add(headSlot);
+                armor -= headSlot.getStats().get("Armour");
+            case TORSO:
+                inventory.add(torsoSlot);
+                armor -= torsoSlot.getStats().get("Armour");
+        }
     }
 
     public void heal(int healAmount) {

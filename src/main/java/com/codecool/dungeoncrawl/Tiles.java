@@ -55,8 +55,6 @@ public class Tiles {
         tileMap.put("mArmor", new Tile(2, 23));
         tileMap.put("hArmor", new Tile(4, 23));
         tileMap.put("knife", new Tile(2, 28));
-
-
     }
 
     public static ImageView getImageFor(String name) {

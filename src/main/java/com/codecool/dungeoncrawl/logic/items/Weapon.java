@@ -28,7 +28,7 @@ public class Weapon extends Equipable {
 
     @Override
     public HashMap<String, Integer> getStats() {
-        HashMap<String,Integer> returnMap = new HashMap<>();
+        HashMap<String, Integer> returnMap = new HashMap<>();
         WEAPON_STAT stat = itemWeaponStatHashMap.get(itemType);
         returnMap.put("Damage", stat.damage);
         return returnMap;
@@ -38,6 +38,4 @@ public class Weapon extends Equipable {
         super(item, cell);
         equipSlot = EQUIP_POSITION.HAND;
     }
-
-
 }

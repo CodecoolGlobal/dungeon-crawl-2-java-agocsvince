@@ -1,12 +1,6 @@
 package com.codecool.dungeoncrawl;
 
-import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
-import com.codecool.dungeoncrawl.logic.Cell;
-import com.codecool.dungeoncrawl.logic.GameMap;
-import com.codecool.dungeoncrawl.logic.MapLoader;
-import com.codecool.dungeoncrawl.logic.actors.Player;
-import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
-import com.codecool.dungeoncrawl.logic.items.Item;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -32,13 +26,19 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
+import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.GameMap;
+import com.codecool.dungeoncrawl.logic.MapLoader;
+import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
+import com.codecool.dungeoncrawl.logic.items.Item;
 
 
 public class GameEngine extends Application {
@@ -61,9 +61,13 @@ public class GameEngine extends Application {
     private final Label name = new Label("Player");
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
-    private static Button[][] inventoryButtons = new Button[4][6];
+    private static final Button[][] inventoryButtons = new Button[4][6];
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
+    private static Button headButton;
+    private static  Button torsoButton;
+    private static  Button lHandButton;
+    private static  Button rHandButton;
 
     public static void main(String[] args) {
         launch(args);
@@ -78,7 +82,12 @@ public class GameEngine extends Application {
         setupDbManager();
 
         Scene scene = new Scene(borderPane);
-        setUpLabels(scene);//
+        setUpLabels(scene);
+
+        torsoButton = makeCharacterButton();
+        headButton = makeCharacterButton();
+        lHandButton = makeCharacterButton();
+        rHandButton = makeCharacterButton();
 
         setUpVBox(menuLabels);
 
@@ -101,7 +110,7 @@ public class GameEngine extends Application {
         // End screen
         Label endScreenPlayAgain = newLabel("Play again");
         Label endScreenMenu = newLabel("Main menu");
-        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain ,endScreenMenu);
+        endLabels = Arrays.asList(newLabel("GAME OVER"), endScreenPlayAgain, endScreenMenu);
         //End screen actions
         endScreenPlayAgain.setOnMouseClicked(mouseEvent -> borderPane.setCenter(canvas));
         endScreenMenu.setOnMouseClicked(mouseEvent -> {
@@ -140,41 +149,52 @@ public class GameEngine extends Application {
         nameField.setStyle("-fx-background-color: #242222; -fx-text-inner-color: white");
     }
 
-    public static void updateInventory(){
-        System.out.println("Updating");
+    public static void updateInventory() {
         for (int row = 0; row < inventoryButtons.length; row++) {
             for (int col = 0; col < inventoryButtons[row].length; col++) {
                 Button button = inventoryButtons[row][col];
-                try{
-                Item item = player.getInventory().get(row+col);
+                try {
+                    Item item = player.getInventory().get(row + col);
 
-                if (item != null) {
-                    button.setGraphic(Tiles.getImageFor(item.getTileName()));
-                    button.setDisable(false);
-                }} catch (Exception e) {
+                    if (item != null) {
+                        button.setGraphic(Tiles.getImageFor(item.getTileName()));
+                        button.setDisable(false);
+                    }
+                } catch (Exception e) {
                     //This happens when we try to update a button for which there is no item
                     button.setGraphic(Tiles.getImageFor("empty"));
                     button.setDisable(true);
                 }
             }
         }
+        updateCharacterUI();
     }
 
-    private void afterStart(Scene scene) {
-        borderPane.setTop(menuBar(name));
-        GridPane holder = new GridPane();
+    private static void updateCharacterUI(){
+        System.out.println("Updating");
+        System.out.println(player.getlHandSlot() != null);
+        if (player.getHeadSlot() != null){
+            headButton.setGraphic(Tiles.getImageFor(player.getHeadSlot().getTileName()));
 
-        //Top UI setup
+        } else
+            headButton.setGraphic(Tiles.getImageFor("empty"));
+        if (player.getlHandSlot() != null){
+            lHandButton.setGraphic(Tiles.getImageFor(player.getlHandSlot().getTileName()));
+        } else
+            headButton.setGraphic(Tiles.getImageFor("empty"));
+        if (player.getHeadSlot() != null){
+            torsoButton.setGraphic(Tiles.getImageFor(player.getTorsoSlot().getTileName()));
+        }
+        else
+            headButton.setGraphic(Tiles.getImageFor("empty"));
+        if (player.getHeadSlot() != null){
+            rHandButton.setGraphic(Tiles.getImageFor(player.getrHandSlot().getTileName()));
+        }
+        else headButton.setGraphic(Tiles.getImageFor("empty"));
+    }
 
-        GridPane uiTop = setUpGridPane();
-
-        //Bottom UI setup
+    private GridPane setUpInventoryPanel() {
         GridPane uiBottom = new GridPane();
-        uiBottom.setHgap(2);
-        uiBottom.setVgap(2);
-        uiBottom.setPrefWidth(200);
-        uiBottom.setPadding(new Insets(10));
-
         for (int row = 0; row < inventoryButtons.length; row++) {
             for (int col = 0; col < inventoryButtons[row].length; col++) {
                 Button btn = new Button();
@@ -184,7 +204,7 @@ public class GameEngine extends Application {
                 btn.setOnMouseReleased(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        if (mouseEvent.getButton() == MouseButton.SECONDARY){
+                        if (mouseEvent.getButton() == MouseButton.SECONDARY) {
                             player.dropItem(player.getInventory().get(btnRow + btnCol));
                             System.out.println("Dropped");
                             updateInventory();
@@ -194,19 +214,47 @@ public class GameEngine extends Application {
                 ImageView img = Tiles.getImageFor("empty");
                 btn.setGraphic(img);
                 btn.setDisable(true);
-                btn.setMinSize(16,16);
-                btn.setPrefSize(28,28);
-                uiBottom.add(btn,col,row);
-                inventoryButtons[row][col] = btn;
+                btn.setMinSize(16, 16);
+                btn.setPrefSize(28, 28);
                 btn.setFocusTraversable(false);
+                uiBottom.add(btn, col, row);
+                inventoryButtons[row][col] = btn;
+
             }
         }
+        uiBottom.setHgap(2);
+        uiBottom.setVgap(2);
+        uiBottom.setPrefWidth(200);
+        uiBottom.setPadding(new Insets(10));
+        return uiBottom;
+    }
+
+
+    private static Button makeCharacterButton() {
+        ImageView img = Tiles.getImageFor("empty");
+        Button btn = new Button();
+        btn.setFocusTraversable(false);
+        btn.setMinSize(28, 28);
+        btn.setPrefSize(28, 28);
+        btn.setGraphic(img);
+        btn.setDisable(true);
+        return btn;
+    }
+
+    private void afterStart(Scene scene) {
+        borderPane.setTop(menuBar(name));
+
+        GridPane holder = new GridPane();
+        GridPane uiTop = setUpGridPane();
+        GridPane uiCharacter = setUpCharacterPane();
+        GridPane uiInventory = setUpInventoryPanel();
 
         BorderPane gameBorderPane = borderPane;
         gameBorderPane.setTop(menuBar(name));
 
-        holder.add(uiTop,0,0);
-        holder.add(uiBottom,0,1);
+        holder.add(uiTop, 0, 0);
+        holder.add(uiCharacter, 0, 1);
+        holder.add(uiInventory, 0, 2);
         gameBorderPane.setCenter(canvas);
         gameBorderPane.setRight(holder);
 
@@ -243,6 +291,28 @@ public class GameEngine extends Application {
         vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
         vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setCenter(vBox);
+    }
+
+    private GridPane setUpCharacterPane() {
+        GridPane uiCharacterPane = new GridPane();
+
+
+
+        headButton.setOnAction(e -> player.unequip(player.getHeadSlot()));
+        torsoButton.setOnAction(e -> player.unequip(player.getTorsoSlot()));
+        lHandButton.setOnAction(e -> player.unequip(player.getlHandSlot()));
+        rHandButton.setOnAction(e -> player.unequip(player.getrHandSlot()));
+
+        uiCharacterPane.add(headButton, 1, 0);
+        uiCharacterPane.add(lHandButton, 0, 1);
+        uiCharacterPane.add(torsoButton, 1, 1);
+        uiCharacterPane.add(rHandButton, 2, 1);
+
+        uiCharacterPane.setHgap(20);
+        uiCharacterPane.setVgap(20);
+        uiCharacterPane.setPrefWidth(200);
+        uiCharacterPane.setPadding(new Insets(35));
+        return uiCharacterPane;
     }
 
     private GridPane setUpGridPane() {

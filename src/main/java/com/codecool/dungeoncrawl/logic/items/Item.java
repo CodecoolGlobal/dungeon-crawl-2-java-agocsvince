@@ -54,7 +54,6 @@ public class Item implements Drawable {
         cell.setItem(this);
     }
 
-    protected Player player = GameEngine.getPlayer();
     protected Equipable.EQUIP_POSITION equipSlot = Equipable.EQUIP_POSITION.NONE;
     protected final ITEM_NAME itemType;
     private Cell cell;
@@ -68,7 +67,8 @@ public class Item implements Drawable {
     }
 
     public void use(){
-
+        System.out.println("using");
+        GameEngine.getPlayer().interact(this);
     }
 
     public HashMap<String, Integer> getStats() {

@@ -15,9 +15,4 @@ public abstract class Equipable extends Item {
         TORSO,
         NONE
     }
-
-    @Override
-    public void use() {
-        player.interact(this);
-    }
 }
