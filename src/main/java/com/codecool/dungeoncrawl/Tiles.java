@@ -2,8 +2,11 @@ package com.codecool.dungeoncrawl;
 
 import com.codecool.dungeoncrawl.logic.Drawable;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.*;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +58,29 @@ public class Tiles {
 
 
     }
+
+    public static ImageView getImageFor(String name) {
+        Tile tile = tileMap.get(name);
+        if (tile == null) {
+            return null;
+        }
+
+        int width = tile.x/2;
+        int height = tile.y/2;
+        Image image = new Image("/tiles.png");
+        WritableImage wImage = new WritableImage(16, 16);
+        PixelReader pixelReader = image.getPixelReader();
+        PixelWriter writer = wImage.getPixelWriter();
+
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++) {
+                Color color = pixelReader.getColor(width+x,height+y);
+                writer.setColor(x,y, color);
+            }
+        }
+        return new ImageView(wImage);
+    }
+
 
     public static void drawTile(GraphicsContext context, Drawable d, int x, int y) {
         Tile tile = tileMap.get(d.getTileName());

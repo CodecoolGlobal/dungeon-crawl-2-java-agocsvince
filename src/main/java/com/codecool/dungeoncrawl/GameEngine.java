@@ -20,6 +20,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.effect.Reflection;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -56,11 +57,10 @@ public class GameEngine extends Application {
     GraphicsContext context = canvas.getGraphicsContext2D();
     private final Label healthLabel = new Label();
     private final Label inventoryLabel = new Label();
-    private final BorderPane borderPane = new BorderPane();
+    private BorderPane borderPane = new BorderPane();
     private GridPane ui;
     private List<Label> menuLabels;
     private final Label name = new Label("Player");
-    private final Label inventory = new Label("Inventory: ");
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
     Button[][] inventoryButtons = new Button[4][6];
@@ -78,51 +78,9 @@ public class GameEngine extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupDbManager();
-        GridPane holder = new GridPane();
-
-        //Top UI setup
-        GridPane uiTop = new GridPane();
-        uiTop.setPrefWidth(200);
-        uiTop.setPadding(new Insets(10));
-        Label name = new Label("Player");
-        pickupButton.setFocusTraversable(false);
-        pickupButton.setOnAction(actionEvent -> pickupButtonPressed());
-        mute.setFocusTraversable(false);
-        mute.setOnAction(actionEvent -> toggleMute());
-
-        uiTop.add(name, 0, 0);
-        uiTop.add(mute, 1, 0);
-        uiTop.add(new Label("Health: "), 0, 1);
-        uiTop.add(healthLabel, 1, 1);
-        uiTop.add(pickupButton, 0, 2);
-
-
-        //Bottom UI setup
-        GridPane uiBottom = new GridPane();
-
-        for (int row = 0; row < inventoryButtons.length; row++) {
-            for (int col = 0; col < 6; col++) {
-                Button btn = new Button();
-                btn.setMinSize(32,32);
-                uiBottom.add(btn,col,row);
-                inventoryButtons[row][col] = btn;
-                btn.setFocusTraversable(false);
-            }
-        }
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.setTop(menuBar(name));
-
-        uiTop.setHgap(10);
-        uiTop.setVgap(10);
-        holder.add(uiTop,0,0);
-        holder.add(uiBottom,0,1);
-        borderPane.setCenter(canvas);
-        borderPane.setRight(holder);
-
 
         Scene scene = new Scene(borderPane);
-        setUpLabels(scene);
+        setUpLabels(scene);//
 
         setUpVBox(menuLabels);
 
@@ -130,8 +88,6 @@ public class GameEngine extends Application {
         refresh();
         primaryStage.setTitle("Dungeon Crawl");
         //This creates the event listener inside the scene for checking key input
-
-        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -187,8 +143,42 @@ public class GameEngine extends Application {
     }
 
     private void afterStart(Scene scene) {
-        borderPane.setRight(ui);
         borderPane.setTop(menuBar(name));
+        GridPane holder = new GridPane();
+
+        //Top UI setup
+
+        GridPane uiTop = setUpGridPane();
+
+        //Bottom UI setup
+        GridPane uiBottom = new GridPane();
+        uiBottom.setHgap(2);
+        uiBottom.setVgap(2);
+        uiBottom.setPrefWidth(200);
+        uiBottom.setPadding(new Insets(10));
+
+        for (int row = 0; row < inventoryButtons.length; row++) {
+            for (int col = 0; col < inventoryButtons[row].length; col++) {
+                Button btn = new Button();
+                ImageView img = Tiles.getImageFor("empty");
+                btn.setGraphic(img);
+                btn.setDisable(true);
+                btn.setMinSize(16,16);
+                btn.setPrefSize(28,28);
+                uiBottom.add(btn,col,row);
+                inventoryButtons[row][col] = btn;
+                btn.setFocusTraversable(false);
+            }
+        }
+
+        BorderPane gameBorderPane = borderPane;
+        gameBorderPane.setTop(menuBar(name));
+
+        holder.add(uiTop,0,0);
+        holder.add(uiBottom,0,1);
+        gameBorderPane.setCenter(canvas);
+        gameBorderPane.setRight(holder);
+
         scene.setOnKeyPressed(this::onKeyPressed);
         //This is the engines fixed time loop for calculating anything that doesn't correlate with the player actions
         KeyFrame enemyMovementFrame = new KeyFrame(Duration.millis(2000), e -> enemyMovement());
@@ -197,7 +187,6 @@ public class GameEngine extends Application {
         timeline.play();
 
         //Keyboard shortcuts
-        //Pick up with 'E'
         scene.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
             if (e.getCode().equals(KeyCode.E)) {
                 pickupButtonPressed();
@@ -210,7 +199,8 @@ public class GameEngine extends Application {
             }
         });
         soundEngine.start();
-        borderPane.setCenter(canvas);
+        gameBorderPane.setCenter(canvas);
+        borderPane = gameBorderPane;
     }
 
     private void styleVBox(VBox vBox) {
@@ -222,19 +212,17 @@ public class GameEngine extends Application {
         vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
         vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setCenter(vBox);
-
     }
 
-    private GridPane setUpGridPane(Label name, Label inventory) {
+    private GridPane setUpGridPane() {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10));
-        ui.add(name, 0, 0);
+        mute.setFocusTraversable(false);
         ui.add(mute, 1, 0);
         ui.add(new Label("Health: "), 0, 1);
         ui.add(healthLabel, 1, 1);
         ui.add(pickupButton, 0, 2);
-        ui.add(inventory, 0, 3);
         ui.add(inventoryLabel, 0, 4);
         ui.setHgap(10);
         ui.setVgap(10);
@@ -244,7 +232,7 @@ public class GameEngine extends Application {
     private Reflection setUpReflection() {
         Reflection reflection = new Reflection();
         reflection.setTopOffset(0);
-        reflection.setTopOpacity(0.75);
+        reflection.setTopOpacity(0.45);
         reflection.setBottomOpacity(0.10);
         reflection.setFraction(0.7);
         return reflection;
