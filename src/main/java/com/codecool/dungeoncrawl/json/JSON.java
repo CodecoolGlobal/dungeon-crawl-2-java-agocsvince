@@ -44,12 +44,12 @@ public class JSON {
         enemies.put("enemies", enemiesFromData);
         //All JSON object into main
         main.put("player", player);
+        main.put("enemies", enemies);
         Files.write(Paths.get(filename+".json"), main.toJSONString().getBytes());
         return player;
     }
 
     public static Object readJson(String filename) throws IOException, ParseException {
-        filename = "Vince";
         FileReader fileReader = new FileReader(filename+".json");
         JSONParser jsonParser = new JSONParser();
         return jsonParser.parse(fileReader);
