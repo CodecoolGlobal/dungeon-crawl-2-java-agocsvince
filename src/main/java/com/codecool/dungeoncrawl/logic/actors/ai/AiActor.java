@@ -14,6 +14,9 @@ public abstract class AiActor extends Actor {
 
     public abstract void makeMove();
 
+    public void update(){
+        makeMove();
+    }
 
     @Override
     public String getTileName() { return name; }
