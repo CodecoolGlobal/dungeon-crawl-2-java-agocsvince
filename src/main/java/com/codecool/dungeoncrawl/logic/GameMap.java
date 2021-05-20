@@ -6,7 +6,7 @@ public class GameMap {
     private int width;
     private int height;
     private Cell[][] cells;
-    private String mapString ="#############";
+    private String mapString = "#############";
 
 
     private Player player;
@@ -28,16 +28,17 @@ public class GameMap {
         for (Cell[] cellRow : cells) {
             for (Cell cell : cellRow) {
                 if (cell.getActor() != null) {
-                    System.out.println(cell.getActor().getClass().getSimpleName());
-                } else if (cell.getItem() != null){
+                    if (cell.getActor().getClass().getSimpleName().equals("Zombie")) {
+                        System.out.println(cell.getActor().getTileName());
+                    } else {
+                        System.out.println(cell.getActor().getClass().getSimpleName());
+                    }
+                } else if (cell.getItem() != null) {
                     System.out.println(cell.getItem().getClass().getSimpleName());
-                } else if (cell.getDoor() != null){
+                } else if (cell.getDoor() != null) {
+                    System.out.println(cell.getDoor().getTileName());
+                } else if (cell.getType() != null){
                     System.out.println(cell.getTileName() );
-//                } else if (cell.getType() != null){
-//                    System.out.println(cell.getTileName() );
-                } else {
-                    continue;
-//                    System.out.println("nullll");
                 }
             }
         }
@@ -46,8 +47,10 @@ public class GameMap {
     public Cell getCell(int x, int y) {
         try {
             return cells[x][y];
-        } catch (Exception exception) { return null; }
+        } catch (Exception exception) {
+            return null;
         }
+    }
 
     public void setPlayer(Player player) {
         this.player = player;
