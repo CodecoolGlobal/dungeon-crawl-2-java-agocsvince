@@ -115,4 +115,18 @@ public class Player extends Actor {
     public void setDamage(int damage) {
         this.damage = damage;
     }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "cell=" + cell +
+                ", health=" + health +
+                ", damage=" + damage +
+                ", isAlive=" + isAlive +
+                ", uuid=" + uuid +
+                ", inventory=" + inventory +
+                ", name='" + name + '\'' +
+                ", developers=" + Arrays.toString(developers) +
+                '}';
+    }
 }

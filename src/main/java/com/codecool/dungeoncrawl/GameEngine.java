@@ -398,7 +398,15 @@ public class GameEngine extends Application {
                 gameState.setPlayer(playerModel);
                 dbManager.saveGameState(map.getMapString(),Date.valueOf("2021-01-01"), playerModel);
                 break;
+            case L:
+                loadGame();
         }
+    }
+
+    private void loadGame() {
+        System.out.println("Loading game...");
+        Player player = map.getPlayer();
+        dbManager.loadPlayerFromDataBase(player);
     }
 
     private void refresh() {
