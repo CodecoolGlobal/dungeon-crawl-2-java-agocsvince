@@ -542,10 +542,10 @@ public class GameEngine extends Application {
         UUID playerId = map.getPlayer().getUuid();
         dbManager.saveEnemies(aiList, playerId);
 
-        GameState gameState = new GameState(map.getMapString(),Date.valueOf("2021-01-01"), new PlayerModel(player));
+        GameState gameState = new GameState(map.getMapObjectsToArray(),Date.valueOf("2021-01-01"), new PlayerModel(player));
         PlayerModel playerModel = new PlayerModel(player);
         gameState.setPlayer(playerModel);
-        dbManager.saveGameState(map.getMapString(),Date.valueOf("2021-01-01"), playerModel);
+        dbManager.saveGameState(map.getMapObjectsToArray(),Date.valueOf("2021-01-01"), playerModel);
     }
 
     private void refresh() {

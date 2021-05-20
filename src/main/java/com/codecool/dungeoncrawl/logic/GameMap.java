@@ -19,7 +19,7 @@ public class GameMap {
     private String mapString = "#############";
 
 
-    public void getMapObjectsToArray(int width, int height) {
+    public String getMapObjectsToArray() {
         ArrayList<String> allElementsInStringArrayList = new ArrayList<String>();
         for (Cell[] cellRow : cells) {
             for (Cell cell : cellRow) {
@@ -39,7 +39,18 @@ public class GameMap {
             }
         }
         replaceTileNameToALetter(allElementsInStringArrayList);
-        convertMapArrayListToMultiDimArray(allElementsInStringArrayList, width, height);
+        char[][] chars = convertMapArrayListToMultiDimArray(allElementsInStringArrayList, width, height);
+        String result = "";
+        String temp = "";
+        for (char[] row : chars) {
+            temp = "";
+            for (char c : row) {
+                temp += c;
+            }
+            temp += "\n";
+            result += temp;
+        }
+        return result;
     }
 
     private void replaceTileNameToALetter(ArrayList<String> allElementsInStringArrayList) {
@@ -88,7 +99,7 @@ public class GameMap {
         }
     }
 
-    private void convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
+    private char[][] convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
         char[] allElementsInCharList = convertStringArrayListToCharArray(allElementsInStringArrayList);
         char[][] StringArray = new char[height][width];
         int c = 0;
@@ -98,6 +109,7 @@ public class GameMap {
                 c++;
             }
         }
+        return StringArray;
     }
 
     private char[] convertStringArrayListToCharArray(ArrayList<String> allElementsInStringArrayList) {
