@@ -2,6 +2,9 @@ package com.codecool.dungeoncrawl.logic;
 
 import com.codecool.dungeoncrawl.logic.actors.Player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class GameMap {
     private int width;
     private int height;
@@ -24,55 +27,77 @@ public class GameMap {
     }
 
 
-    public void printActors() {
+    public void getMapObjectsToArray(int width, int height) {
+        ArrayList<String> allElementsInStringArrayList = new ArrayList<String>();
         for (Cell[] cellRow : cells) {
             for (Cell cell : cellRow) {
                 if (cell.getActor() != null) {
                     if (cell.getActor().getClass().getSimpleName().equals("Zombie")) {
-                        System.out.println(cell.getActor().getTileName());
+                        allElementsInStringArrayList.add(cell.getActor().getTileName());
+//                        System.out.println(cell.getActor().getTileName());
                     } else {
-                        System.out.println(cell.getActor().getClass().getSimpleName());
+                        allElementsInStringArrayList.add(cell.getActor().getClass().getSimpleName());
+//                        System.out.println(cell.getActor().getClass().getSimpleName());
                     }
                 } else if (cell.getItem() != null) {
-                    System.out.println(cell.getItem().getClass().getSimpleName());
+                    allElementsInStringArrayList.add(cell.getItem().getClass().getSimpleName());
+//                    System.out.println(cell.getItem().getClass().getSimpleName());
                 } else if (cell.getDoor() != null) {
-                    System.out.println(cell.getDoor().getTileName());
-                } else if (cell.getType() != null){
-                    System.out.println(cell.getTileName() );
+                    allElementsInStringArrayList.add(cell.getDoor().getTileName());
+//                    System.out.println(cell.getDoor().getTileName());
+                } else if (cell.getType() != null) {
+                    allElementsInStringArrayList.add(cell.getTileName());
+//                    System.out.println(cell.getTileName());
                 }
             }
         }
+        convertMapArrayListToMultiDimArray(allElementsInStringArrayList, width, height);
     }
 
-    public Cell getCell(int x, int y) {
-        try {
-            return cells[x][y];
-        } catch (Exception exception) {
-            return null;
+    private void convertMapArrayListToMultiDimArray(ArrayList<String> allElementsInStringArrayList, int width, int height) {
+        String[][] StringArray = new String[width][height];
+        int c = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+//            String[] row = new String[width];
+                StringArray[x][y] = allElementsInStringArrayList.get(c);
+                c++;
+            }
+//                    for (String s : allElementsInStringArrayList) {
+
+        }
+        System.out.println(Arrays.deepToString(StringArray));
+    }
+
+        public Cell getCell ( int x, int y){
+            try {
+                return cells[x][y];
+            } catch (Exception exception) {
+                return null;
+            }
+        }
+
+        public void setPlayer (Player player){
+            this.player = player;
+        }
+
+        public Player getPlayer () {
+            return player;
+        }
+
+        public int getWidth () {
+            return width;
+        }
+
+        public int getHeight () {
+            return height;
+        }
+
+        public String getMapString () {
+            return mapString;
+        }
+
+        public void setMapString (String mapString){
+            this.mapString = mapString;
         }
     }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public String getMapString() {
-        return mapString;
-    }
-
-    public void setMapString(String mapString) {
-        this.mapString = mapString;
-    }
-}
