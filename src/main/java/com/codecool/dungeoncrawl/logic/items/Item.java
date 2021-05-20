@@ -47,6 +47,9 @@ public class Item implements Drawable {
         }
     }
 
+    public void setCell(Cell cell) {
+        this.cell = cell;
+    }
 
     public Item(ITEM_NAME item, Cell cell) {
         this.itemType = item;

@@ -90,6 +90,7 @@ public class Player extends Actor {
     public void pickUpItem(Item item) {
         if (inventory.size() < maxInventorySize) {
             inventory.add(item);
+            item.setCell(null);
             GameEngine.soundEngine.play("pickup");
             GameEngine.updateInventory();
         }
@@ -175,10 +176,10 @@ public class Player extends Actor {
         } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HAND) {
             if (lHandSlot == null) {
                 lHandSlot = equipWeapon((Weapon) item);
-                System.out.println("lHandSlot: "+lHandSlot);
+                System.out.println("lHandSlot: " + lHandSlot);
             } else if (rHandSlot == null) {
                 rHandSlot = equipWeapon((Weapon) item);
-                System.out.println("rHandSlot: "+rHandSlot);
+                System.out.println("rHandSlot: " + rHandSlot);
             } else {
                 if (inventory.size() < maxInventorySize) {
                     inventory.add(rHandSlot);
@@ -226,6 +227,17 @@ public class Player extends Actor {
         }
     }
 
+    @Override
+    public void takeDamage(int damage) {
+        damage -= armor;
+        damage = Math.min(damage,1);
+        health -= damage;
+        health = Math.max(health, 0);
+        if (health <= 0) {
+            die();
+        }
+    }
+
     public void heal(int healAmount) {
         health += healAmount;
         health = Math.min(health, maxHealth);
@@ -246,9 +258,5 @@ public class Player extends Actor {
 
     public int getDamage() {
         return damage;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
     }
 }
