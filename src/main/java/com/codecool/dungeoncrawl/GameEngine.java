@@ -418,6 +418,7 @@ public class GameEngine extends Application {
             Button cancel = new Button("Cancel");
             save.setOnAction(e -> {
                 //TODO: Save
+                saveToDataBase();
             });
             cancel.setOnAction(e -> {
                 stage.close();
@@ -426,6 +427,7 @@ public class GameEngine extends Application {
             saveField.setOnKeyPressed(k -> {
                 if (k.getCode().equals(KeyCode.ENTER)) {
                     //TODO: Save
+                    saveToDataBase();
                 }
             });
 
@@ -518,18 +520,22 @@ public class GameEngine extends Application {
                 refresh();
                 break;
             case S:
-                Player player = map.getPlayer();
-                dbManager.savePlayer(player);
-
-                UUID playerId = map.getPlayer().getUuid();
-                dbManager.saveEnemies(aiList, playerId);
-
-                GameState gameState = new GameState(map.getMapString(),Date.valueOf("2021-01-01"), new PlayerModel(player));
-                PlayerModel playerModel = new PlayerModel(player);
-                gameState.setPlayer(playerModel);
-                dbManager.saveGameState(map.getMapString(),Date.valueOf("2021-01-01"), playerModel);
+                //saveToDataBase();
                 break;
         }
+    }
+
+    private void saveToDataBase() {
+        Player player = map.getPlayer();
+        dbManager.savePlayer(player);
+
+        UUID playerId = map.getPlayer().getUuid();
+        dbManager.saveEnemies(aiList, playerId);
+
+        GameState gameState = new GameState(map.getMapObjectsToArray(),Date.valueOf("2021-01-01"), new PlayerModel(player));
+        PlayerModel playerModel = new PlayerModel(player);
+        gameState.setPlayer(playerModel);
+        dbManager.saveGameState(map.getMapObjectsToArray(),Date.valueOf("2021-01-01"), playerModel);
     }
 
     private void refresh() {
