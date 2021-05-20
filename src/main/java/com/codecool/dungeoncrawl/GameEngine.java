@@ -53,7 +53,7 @@ public class GameEngine extends Application {
 
 
     public static SoundEngine soundEngine = new SoundEngine();
-    static GameMap map = MapLoader.loadMap(0);
+    static GameMap map = MapLoader.loadMap(1);
     static Player player = map.getPlayer();
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
@@ -304,7 +304,7 @@ public class GameEngine extends Application {
         vBox.setAlignment(Pos.CENTER);
         vBox.setStyle("-fx-background-color: #242222");
         vBox.setMinWidth(map.getWidth() * Tiles.TILE_WIDTH + 200);
-        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH);
+        vBox.setMinHeight(map.getHeight() * Tiles.TILE_WIDTH +Tiles.TILE_WIDTH);
         vBox.setMaxWidth(map.getWidth() * Tiles.TILE_WIDTH);
         vBox.setMaxHeight(map.getHeight() * Tiles.TILE_WIDTH);
         borderPane.setCenter(vBox);
