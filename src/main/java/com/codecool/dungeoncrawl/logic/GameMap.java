@@ -20,6 +20,27 @@ public class GameMap {
                 cells[x][y] = new Cell(this, x, y, defaultCellType);
             }
         }
+
+    }
+
+
+    public void printActors() {
+        for (Cell[] cellRow : cells) {
+            for (Cell cell : cellRow) {
+                if (cell.getActor() != null) {
+                    System.out.println(cell.getActor().getClass().getSimpleName());
+                } else if (cell.getItem() != null){
+                    System.out.println(cell.getItem().getClass().getSimpleName());
+                } else if (cell.getDoor() != null){
+                    System.out.println(cell.getTileName() );
+//                } else if (cell.getType() != null){
+//                    System.out.println(cell.getTileName() );
+                } else {
+                    continue;
+//                    System.out.println("nullll");
+                }
+            }
+        }
     }
 
     public Cell getCell(int x, int y) {

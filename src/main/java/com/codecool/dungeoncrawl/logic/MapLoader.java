@@ -95,6 +95,7 @@ public class MapLoader {
             }
         }
         activeMap = map;
+        map.printActors();
         return activeMap;
     }
 
