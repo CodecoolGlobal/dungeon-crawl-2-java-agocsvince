@@ -119,6 +119,7 @@ public class Player extends Actor {
             equip(item);
         } else if (item instanceof HealItem) {
             heal(item.getStats().get("Healing"));
+            GameEngine.soundEngine.play("potionDrink");
             inventory.remove(item);
         }
         GameEngine.updateInventory();

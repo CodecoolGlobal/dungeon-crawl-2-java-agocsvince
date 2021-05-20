@@ -17,6 +17,7 @@ public class MapLoader {
 
     static {
         maps.add("map1");
+        maps.add("map2");
     }
 
     private static GameMap activeMap;

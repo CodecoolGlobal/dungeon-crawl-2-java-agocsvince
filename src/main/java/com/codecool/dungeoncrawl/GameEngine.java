@@ -66,7 +66,6 @@ public class GameEngine extends Application {
     private List<Label> menuLabels;
     private final Label name = new Label("Player");
     private final Button pickupButton = new Button("Pick up item (E)");
-    private final Button mute = new Button("Mute");
     private static final Button[][] inventoryButtons = new Button[4][6];
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
@@ -335,9 +334,7 @@ public class GameEngine extends Application {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10));
-        mute.setFocusTraversable(false);
         pickupButton.setFocusTraversable(false);
-        ui.add(mute, 1, 0);
         ui.add(new Label("Health: "), 0, 1);
         ui.add(healthLabel, 1, 1);
         ui.add(pickupButton, 0, 2);
@@ -384,14 +381,6 @@ public class GameEngine extends Application {
         }
     }
 
-    private void toggleMute() {
-        soundEngine.toggleMute();
-        if (soundEngine.isMuted()) {
-            mute.setText("Unmute");
-        } else {
-            mute.setText("Mute");
-        }
-    }
 
     private MenuBar menuBar(Label name) {
         MenuBar menuBar = new MenuBar();
