@@ -18,7 +18,7 @@ CREATE TABLE public.player (
     hp integer NOT NULL,
     x integer NOT NULL,
     y integer NOT NULL,
-    purse integer NOT NULL,
+    purse text NOT NULL,
     item_hand_r integer NOT NULL,
     item_hand_l integer NOT NULL,
     item_head integer NOT NULL,

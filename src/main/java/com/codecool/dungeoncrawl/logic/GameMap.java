@@ -6,8 +6,8 @@ import com.codecool.dungeoncrawl.logic.actors.ai.Golem;
 import com.codecool.dungeoncrawl.logic.actors.ai.Skeleton;
 import com.codecool.dungeoncrawl.logic.actors.ai.Wraith;
 import com.codecool.dungeoncrawl.logic.actors.ai.Zombie;
-import com.codecool.dungeoncrawl.logic.items.Key;
-import com.codecool.dungeoncrawl.logic.items.Sword;
+//import com.codecool.dungeoncrawl.logic.items.Key;
+//import com.codecool.dungeoncrawl.logic.items.Sword;
 
 import java.util.ArrayList;
 import java.util.Arrays;
