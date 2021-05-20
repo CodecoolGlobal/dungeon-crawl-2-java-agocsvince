@@ -17,7 +17,12 @@ CREATE TABLE public.player (
     player_name text NOT NULL,
     hp integer NOT NULL,
     x integer NOT NULL,
-    y integer NOT NULL
+    y integer NOT NULL,
+    purse integer NOT NULL,
+    item_hand_r integer NOT NULL,
+    item_hand_l integer NOT NULL,
+    item_head integer NOT NULL,
+    item_chest integer NOT NULL
 );
 
 DROP TABLE IF EXISTS public.enemy;
