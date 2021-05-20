@@ -491,10 +491,11 @@ public class GameEngine extends Application {
     private void pickupButtonPressed() {
         Cell playerCell = player.getCell();
         Item item = playerCell.getItem();
-        player.pickUpItem(item);
-        playerCell.removeItemFromCell();
-        pickupButton.setVisible(false);
-
+        if (item != null) {
+            player.pickUpItem(item);
+            playerCell.removeItemFromCell();
+            pickupButton.setVisible(false);
+        }
         //Add to inventory graphically
     }
 
