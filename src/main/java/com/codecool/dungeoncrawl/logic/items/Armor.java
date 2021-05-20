@@ -45,6 +45,10 @@ public class Armor extends Equipable {
 
     public Armor(ITEM_NAME item, Cell cell) {
         super(item, cell);
-        //Setup equip slot
+        if (item == ITEM_NAME.ARMOR_LIGHT || item == ITEM_NAME.ARMOR_MEDIUM || item == ITEM_NAME.ARMOR_HEAVY){
+            equipSlot = EQUIP_POSITION.TORSO;
+        } else {
+            equipSlot = EQUIP_POSITION.HEAD;
+        }
     }
 }

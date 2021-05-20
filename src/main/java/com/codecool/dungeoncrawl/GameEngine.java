@@ -13,6 +13,7 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,10 +22,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -63,7 +61,7 @@ public class GameEngine extends Application {
     private final Label name = new Label("Player");
     private final Button pickupButton = new Button("Pick up item (E)");
     private final Button mute = new Button("Mute");
-    Button[][] inventoryButtons = new Button[4][6];
+    private static Button[][] inventoryButtons = new Button[4][6];
     private List<Label> endLabels;
     private final TextField nameField = new TextField(player.getName());
 
@@ -142,6 +140,26 @@ public class GameEngine extends Application {
         nameField.setStyle("-fx-background-color: #242222; -fx-text-inner-color: white");
     }
 
+    public static void updateInventory(){
+        System.out.println("Updating");
+        for (int row = 0; row < inventoryButtons.length; row++) {
+            for (int col = 0; col < inventoryButtons[row].length; col++) {
+                Button button = inventoryButtons[row][col];
+                try{
+                Item item = player.getInventory().get(row+col);
+
+                if (item != null) {
+                    button.setGraphic(Tiles.getImageFor(item.getTileName()));
+                    button.setDisable(false);
+                }} catch (Exception e) {
+                    //This happens when we try to update a button for which there is no item
+                    button.setGraphic(Tiles.getImageFor("empty"));
+                    button.setDisable(true);
+                }
+            }
+        }
+    }
+
     private void afterStart(Scene scene) {
         borderPane.setTop(menuBar(name));
         GridPane holder = new GridPane();
@@ -160,6 +178,19 @@ public class GameEngine extends Application {
         for (int row = 0; row < inventoryButtons.length; row++) {
             for (int col = 0; col < inventoryButtons[row].length; col++) {
                 Button btn = new Button();
+                int btnCol = col;
+                int btnRow = row;
+                btn.setOnAction(e -> player.getInventory().get(btnRow + btnCol).use());
+                btn.setOnMouseReleased(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        if (mouseEvent.getButton() == MouseButton.SECONDARY){
+                            player.dropItem(player.getInventory().get(btnRow + btnCol));
+                            System.out.println("Dropped");
+                            updateInventory();
+                        }
+                    }
+                });
                 ImageView img = Tiles.getImageFor("empty");
                 btn.setGraphic(img);
                 btn.setDisable(true);
@@ -219,6 +250,7 @@ public class GameEngine extends Application {
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10));
         mute.setFocusTraversable(false);
+        pickupButton.setFocusTraversable(false);
         ui.add(mute, 1, 0);
         ui.add(new Label("Health: "), 0, 1);
         ui.add(healthLabel, 1, 1);

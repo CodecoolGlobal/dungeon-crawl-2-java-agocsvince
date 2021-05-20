@@ -59,6 +59,10 @@ public class Item implements Drawable {
     protected final ITEM_NAME itemType;
     private Cell cell;
 
+    public Equipable.EQUIP_POSITION getEquipSlot() {
+        return equipSlot;
+    }
+
     public int getItemID() {
         return itemType.id;
     }

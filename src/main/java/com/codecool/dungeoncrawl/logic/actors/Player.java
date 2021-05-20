@@ -6,15 +6,11 @@ import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
 import com.codecool.dungeoncrawl.logic.items.*;
 
-import java.rmi.server.UID;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Player extends Actor {
     private UUID uuid = UUID.randomUUID();
-    private final Set<Item> inventory = new HashSet<>();
+    private final ArrayList<Item> inventory = new ArrayList<>();
     private String name;
     private final static String[] developers = new String[]{"Lehel", "Tomi", "Mate", "Vince"};
 
@@ -22,10 +18,14 @@ public class Player extends Actor {
     private Item lHandSlot;
     private Item rHandSlot;
     private Item torsoSlot;
+    private int armor = 0;
+    private int maxInventorySize = 24;
+    private int maxHealth;
 
     public Player(Cell cell) {
         super(cell);
-        health = 10;
+        health = 15;
+        maxHealth = health;
         damage = 5;
         this.name = "developer";
     }
@@ -39,7 +39,7 @@ public class Player extends Actor {
     }
 
     public void move(int dx, int dy) {
-        if (cell.getNeighbor(dx, dy) != null){
+        if (cell.getNeighbor(dx, dy) != null) {
             Cell neighbor = cell.getNeighbor(dx, dy);
             if (neighbor.getType() != CellType.WALL && !Arrays.asList(developers).contains(this.name)) {
                 move(dx, dy, neighbor);
@@ -79,7 +79,7 @@ public class Player extends Actor {
 
     private void fightEngine(int dx, int dy, Cell neighbor) {
         AiActor enemy = (AiActor) neighbor.getActor();
-        attack(enemy,damage);
+        attack(enemy, damage);
         if (!enemy.isAlive()) {
             cell.getNeighbor(dx, dy).setActor(null);
         } else {
@@ -88,33 +88,98 @@ public class Player extends Actor {
     }
 
     public void pickUpItem(Item item) {
-        inventory.add(item);
-        GameEngine.soundEngine.play("pickup");
+        if (inventory.size() < maxInventorySize) {
+            inventory.add(item);
+            GameEngine.soundEngine.play("pickup");
+            GameEngine.updateInventory();
+        }
     }
 
-    public void dropItem(Item item){
+    public ArrayList<Item> getInventory() {
+        return inventory;
+    }
+
+    public void dropItem(Item item) {
         if (cell.getItem() == null) {
+            cell.setItem(item);
             inventory.remove(item);
+            System.out.println(inventory);
             GameEngine.soundEngine.play("pickup");
         }
     }
 
-    public void interact(Item item){
-        if (item instanceof  Armor){
+    public void interact(Item item) {
+        if (item instanceof Armor) {
             equip(item);
-        } else if (item instanceof Weapon){
-
-        } else if (item instanceof HealItem){
-
+        } else if (item instanceof Weapon) {
+            equip(item);
+        } else if (item instanceof HealItem) {
+            heal(item.getStats().get("Healing"));
         }
     }
 
-    public void equip(Item item){
-
+    public void equip(Item item) {
+        if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HEAD) {
+            if (headSlot == null) {
+                equipArmor((Armor) item);
+            } else {
+                if (inventory.size() < maxInventorySize) {
+                    removeArmor();
+                    equipArmor((Armor) item);
+                }
+            }
+        } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.TORSO) {
+            if (torsoSlot == null) {
+                equipArmor((Armor) item);
+            } else {
+                if (inventory.size() < maxInventorySize) {
+                    removeArmor();
+                    equipArmor((Armor) item);
+                }
+            }
+        } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HAND) {
+            if (lHandSlot == null) {
+                lHandSlot = equipWeapon((Weapon) item);
+            } else if (rHandSlot == null) {
+                rHandSlot = equipWeapon((Weapon) item);
+            } else {
+                if (inventory.size() < maxInventorySize) {
+                    inventory.add(rHandSlot);
+                    rHandSlot = removeWeapon((Weapon) rHandSlot);
+                    rHandSlot = equipWeapon((Weapon) item);
+                }
+            }
+        }
     }
 
-    public void heal(int healAmount){
 
+    private Item equipWeapon(Weapon weapon) {
+        damage += weapon.getStats().get("Damage");
+        inventory.remove(weapon);
+        System.out.println("Equipping weapon");
+        return weapon;
+    }
+
+    private Item removeWeapon(Weapon weapon) {
+        damage -= weapon.getStats().get("Damage");
+        System.out.println("Dropping weapon");
+        return null;
+    }
+
+    private void equipArmor(Armor armorItem) {
+        headSlot = armorItem;
+        inventory.remove(armorItem);
+        armor += armorItem.getStats().get("Armour");
+    }
+
+    private void removeArmor() {
+        inventory.add(headSlot);
+        armor -= headSlot.getStats().get("Armour");
+    }
+
+    public void heal(int healAmount) {
+        health += healAmount;
+        health = Math.min(health, maxHealth);
     }
 
     public String getTileName() {

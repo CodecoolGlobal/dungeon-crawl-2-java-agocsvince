@@ -9,7 +9,7 @@ public abstract class Equipable extends Item {
 
     protected EQUIP_POSITION equipSlot = EQUIP_POSITION.NONE;
 
-    enum EQUIP_POSITION{
+    public enum EQUIP_POSITION{
         HAND,
         HEAD,
         TORSO,
