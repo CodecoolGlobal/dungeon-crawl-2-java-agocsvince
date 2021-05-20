@@ -26,12 +26,14 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.GameMap;
@@ -150,11 +152,12 @@ public class GameEngine extends Application {
     }
 
     public static void updateInventory() {
+        soundEngine.play("pickup");
         for (int row = 0; row < inventoryButtons.length; row++) {
             for (int col = 0; col < inventoryButtons[row].length; col++) {
                 Button button = inventoryButtons[row][col];
                 try {
-                    Item item = player.getInventory().get(row + col);
+                    Item item = player.getInventory().get((row*6) + col);
 
                     if (item != null) {
                         button.setGraphic(Tiles.getImageFor(item.getTileName()));
@@ -170,28 +173,39 @@ public class GameEngine extends Application {
         updateCharacterUI();
     }
 
-    private static void updateCharacterUI(){
-        System.out.println("Updating");
+    private static void updateCharacterUI() {
         System.out.println(player.getlHandSlot());
         System.out.println(player.getlHandSlot() != null);
-        if (player.getHeadSlot() != null){
+        if (player.getHeadSlot() != null) {
+            System.out.println("Head slot not NULL");
             headButton.setGraphic(Tiles.getImageFor(player.getHeadSlot().getTileName()));
-
-        } else
+            headButton.setDisable(false);
+        } else {
             headButton.setGraphic(Tiles.getImageFor("empty"));
-        if (player.getlHandSlot() != null){
+            headButton.setDisable(true);
+        }
+        if (player.getlHandSlot() != null) {
             lHandButton.setGraphic(Tiles.getImageFor(player.getlHandSlot().getTileName()));
-        } else
-            headButton.setGraphic(Tiles.getImageFor("empty"));
-        if (player.getHeadSlot() != null){
+            lHandButton.setDisable(false);
+        } else {
+            lHandButton.setGraphic(Tiles.getImageFor("empty"));
+            lHandButton.setDisable(true);
+        }
+        if (player.getTorsoSlot() != null) {
+            System.out.println("Torso slot not NULL");
             torsoButton.setGraphic(Tiles.getImageFor(player.getTorsoSlot().getTileName()));
+            torsoButton.setDisable(false);
+        } else {
+            torsoButton.setGraphic(Tiles.getImageFor("empty"));
+            torsoButton.setDisable(true);
         }
-        else
-            headButton.setGraphic(Tiles.getImageFor("empty"));
-        if (player.getHeadSlot() != null){
+        if (player.getrHandSlot() != null) {
             rHandButton.setGraphic(Tiles.getImageFor(player.getrHandSlot().getTileName()));
+            rHandButton.setDisable(false);
+        } else {
+            rHandButton.setGraphic(Tiles.getImageFor("empty"));
+            rHandButton.setDisable(true);
         }
-        else headButton.setGraphic(Tiles.getImageFor("empty"));
     }
 
     private GridPane setUpInventoryPanel() {

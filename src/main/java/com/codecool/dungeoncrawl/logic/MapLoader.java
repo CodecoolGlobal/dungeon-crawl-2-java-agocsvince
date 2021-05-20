@@ -26,13 +26,13 @@ public class MapLoader {
     }
 
     public static GameMap loadNextMap() {
-        activeMap = loadMap(currentMapIndex+1);
+        activeMap = loadMap(currentMapIndex + 1);
         return activeMap;
     }
 
     public static GameMap loadMap(int mapIndex) {
 
-        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/"+maps.get(mapIndex)+".txt");
+        InputStream streamFromTxt = MapLoader.class.getResourceAsStream("/" + maps.get(mapIndex) + ".txt");
         System.out.println(streamFromTxt);
         Scanner scanner = new Scanner(streamFromTxt);
         int width = scanner.nextInt();
@@ -86,6 +86,38 @@ public class MapLoader {
                         case 'z':
                             cell.setType(CellType.FLOOR);
                             GameEngine.aiList.add(new Zombie(cell, map));
+                            break;
+                        case '1':
+                            cell.setType(CellType.FLOOR);
+                            new Armor(Item.ITEM_NAME.ARMOR_LIGHT, cell);
+                            break;
+                        case '2':
+                            cell.setType(CellType.FLOOR);
+                            new Armor(Item.ITEM_NAME.ARMOR_MEDIUM, cell);
+                            break;
+                        case '3':
+                            cell.setType(CellType.FLOOR);
+                            new Armor(Item.ITEM_NAME.ARMOR_HEAVY, cell);
+                            break;
+                        case '4':
+                            cell.setType(CellType.FLOOR);
+                            new Armor(Item.ITEM_NAME.HELMET_LIGHT, cell);
+                            break;
+                        case '5':
+                            cell.setType(CellType.FLOOR);
+                            new Armor(Item.ITEM_NAME.HELMET_MEDIUM, cell);
+                            break;
+                        case '6':
+                            cell.setType(CellType.FLOOR);
+                            new Armor(Item.ITEM_NAME.HELMET_HEAVY, cell);
+                            break;
+                        case 'H':
+                            cell.setType(CellType.FLOOR);
+                            new HealItem(Item.ITEM_NAME.POTION_HEALTH, cell);
+                            break;
+                        case 'K':
+                            cell.setType(CellType.FLOOR);
+                            new Weapon(Item.ITEM_NAME.KNIFE, cell);
                             break;
                         default:
                             throw new RuntimeException("Unrecognized character: '" + line.charAt(x) + "'");

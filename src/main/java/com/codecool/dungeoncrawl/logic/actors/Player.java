@@ -63,6 +63,7 @@ public class Player extends Actor {
                 if (item.getItemID() == Item.ITEM_NAME.KEY_YELLOW.id) {
                     neighbor.openDoor(item);
                     inventory.remove(item);
+                    GameEngine.updateInventory();
                     return;
                 }
             }
@@ -91,7 +92,6 @@ public class Player extends Actor {
         if (inventory.size() < maxInventorySize) {
             inventory.add(item);
             item.setCell(null);
-            GameEngine.soundEngine.play("pickup");
             GameEngine.updateInventory();
         }
     }
@@ -103,8 +103,9 @@ public class Player extends Actor {
     public void dropItem(Item item) {
         if (cell.getItem() == null) {
             cell.setItem(item);
+            item.setCell(cell);
             inventory.remove(item);
-            GameEngine.soundEngine.play("pickup");
+            GameEngine.updateInventory();
         }
     }
 
@@ -118,6 +119,7 @@ public class Player extends Actor {
             equip(item);
         } else if (item instanceof HealItem) {
             heal(item.getStats().get("Healing"));
+            inventory.remove(item);
         }
         GameEngine.updateInventory();
     }
@@ -143,19 +145,28 @@ public class Player extends Actor {
     }
 
     public void unequip(Item item) {
+        System.out.println("Unequiping " + item);
         if (inventory.size() < maxInventorySize) {
+            System.out.println("Inventory OK");
             switch (item.getEquipSlot()) {
                 case TORSO:
                     removeArmor(Equipable.EQUIP_POSITION.TORSO);
+                    break;
                 case HEAD:
                     removeArmor(Equipable.EQUIP_POSITION.HEAD);
+                    break;
+                case HAND:
+                    removeWeapon((Weapon) item);
+                    break;
             }
         }
+        GameEngine.updateInventory();
     }
 
     public void equip(Item item) {
         System.out.println(item.getEquipSlot());
         if (item.getEquipSlot() == Equipable.EQUIP_POSITION.HEAD) {
+            System.out.println("Head equipment going on");
             if (headSlot == null) {
                 equipArmor((Armor) item, Equipable.EQUIP_POSITION.HEAD);
             } else {
@@ -165,6 +176,7 @@ public class Player extends Actor {
                 }
             }
         } else if (item.getEquipSlot() == Equipable.EQUIP_POSITION.TORSO) {
+            System.out.println("Torso equipment going on");
             if (torsoSlot == null) {
                 equipArmor((Armor) item, Equipable.EQUIP_POSITION.TORSO);
             } else {
@@ -183,7 +195,7 @@ public class Player extends Actor {
             } else {
                 if (inventory.size() < maxInventorySize) {
                     inventory.add(rHandSlot);
-                    rHandSlot = removeWeapon((Weapon) rHandSlot);
+                    removeWeapon((Weapon) rHandSlot);
                     rHandSlot = equipWeapon((Weapon) item);
                 }
             }
@@ -198,21 +210,28 @@ public class Player extends Actor {
         return weapon;
     }
 
-    private Item removeWeapon(Weapon weapon) {
+    private void removeWeapon(Weapon weapon) {
         damage -= weapon.getStats().get("Damage");
-        System.out.println("Dropping weapon");
-        return null;
+        inventory.add(weapon);
+        if (weapon == lHandSlot) {
+            lHandSlot = null;
+        } else {
+            rHandSlot = null;
+        }
     }
 
     private void equipArmor(Armor armorItem, Equipable.EQUIP_POSITION position) {
 
         inventory.remove(armorItem);
         armor += armorItem.getStats().get("Armour");
+        System.out.println("Position is " +position);
         switch (position) {
             case TORSO:
                 torsoSlot = armorItem;
+                break;
             case HEAD:
                 headSlot = armorItem;
+                break;
         }
     }
 
@@ -221,16 +240,20 @@ public class Player extends Actor {
             case HEAD:
                 inventory.add(headSlot);
                 armor -= headSlot.getStats().get("Armour");
+                headSlot = null;
+                break;
             case TORSO:
                 inventory.add(torsoSlot);
                 armor -= torsoSlot.getStats().get("Armour");
+                torsoSlot = null;
+                break;
         }
     }
 
     @Override
     public void takeDamage(int damage) {
         damage -= armor;
-        damage = Math.min(damage,1);
+        damage = Math.max(damage, 1);
         health -= damage;
         health = Math.max(health, 0);
         if (health <= 0) {
