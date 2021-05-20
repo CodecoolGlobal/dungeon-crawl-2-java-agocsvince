@@ -7,6 +7,8 @@ import com.codecool.dungeoncrawl.logic.MapLoader;
 import com.codecool.dungeoncrawl.logic.actors.Player;
 import com.codecool.dungeoncrawl.logic.actors.ai.AiActor;
 import com.codecool.dungeoncrawl.logic.items.Item;
+import com.codecool.dungeoncrawl.model.GameState;
+import com.codecool.dungeoncrawl.model.PlayerModel;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -35,6 +37,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.InputStream;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -384,9 +388,15 @@ public class GameEngine extends Application {
                 break;
             case S:
                 Player player = map.getPlayer();
-                UUID playerId = map.getPlayer().getUuid();
                 dbManager.savePlayer(player);
+
+                UUID playerId = map.getPlayer().getUuid();
                 dbManager.saveEnemies(aiList, playerId);
+
+                GameState gameState = new GameState(map.getMapString(),Date.valueOf("2021-01-01"), new PlayerModel(player));
+                PlayerModel playerModel = new PlayerModel(player);
+                gameState.setPlayer(playerModel);
+                dbManager.saveGameState(map.getMapString(),Date.valueOf("2021-01-01"), playerModel);
                 break;
         }
     }

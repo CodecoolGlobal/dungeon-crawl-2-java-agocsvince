@@ -6,6 +6,8 @@ public class GameMap {
     private int width;
     private int height;
     private Cell[][] cells;
+    private String mapString ="#############";
+
 
     private Player player;
 
@@ -40,5 +42,13 @@ public class GameMap {
 
     public int getHeight() {
         return height;
+    }
+
+    public String getMapString() {
+        return mapString;
+    }
+
+    public void setMapString(String mapString) {
+        this.mapString = mapString;
     }
 }
