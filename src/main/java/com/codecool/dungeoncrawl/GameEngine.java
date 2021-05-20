@@ -28,6 +28,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.InputStream;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -525,9 +527,15 @@ public class GameEngine extends Application {
                 break;
             case S:
                 Player player = map.getPlayer();
-                UUID playerId = map.getPlayer().getUuid();
                 dbManager.savePlayer(player);
+
+                UUID playerId = map.getPlayer().getUuid();
                 dbManager.saveEnemies(aiList, playerId);
+
+                GameState gameState = new GameState(map.getMapString(),Date.valueOf("2021-01-01"), new PlayerModel(player));
+                PlayerModel playerModel = new PlayerModel(player);
+                gameState.setPlayer(playerModel);
+                dbManager.saveGameState(map.getMapString(),Date.valueOf("2021-01-01"), playerModel);
                 break;
         }
     }
