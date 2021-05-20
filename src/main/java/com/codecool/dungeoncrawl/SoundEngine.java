@@ -38,12 +38,13 @@ public class SoundEngine {
         nameToFileName.put("mixkit-metallic-sword-scrape-2799", "attack");
         nameToFileName.put("mixkit-hammer-hit-on-wood-830", "pickup");
         nameToFileName.put("mixkit-metal-scrape-809", "pickup");
+        nameToFileName.put("Zapper Pickup - Sound effect for editing", "pickup");
         nameToFileName.put("impact_rock_large_rockpool_dry_001", "golem");
         nameToFileName.put("Blastwave_FX_CementWallHit_BW.17122", "golem");
         nameToFileName.put("glitchedtones_Door+Bathroom+Unlock+02", "doorOpen");
         nameToFileName.put("127879882", "zombie");
-
-
+        nameToFileName.put("Pubg- Molotov pickup sound Harsh Yadav yt", "potionDrink");
+        nameToFileName.put("Potion  1 (Sound Effect) Diablo II", "potionDrink");
 
     }
 
